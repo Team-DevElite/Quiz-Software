@@ -7,7 +7,7 @@ their knowledge.
 
 ## Team members
 
-- [Member One](https://github.com/Samir-BK)
-- [Member Two](https://github.com/Prastab-Parajuli)
-- [Member Three](https://github.com/A2p3kt)
-- [Member Four](https://github.com/sakibul2024)
+- [Samir B K](https://github.com/Samir-BK)
+- [Prastab Parajuli](https://github.com/Prastab-Parajuli)
+- [Toluwalase Ayoola](https://github.com/A2p3kt)
+- [Sakibul Islam](https://github.com/sakibul2024)
