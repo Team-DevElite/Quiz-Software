@@ -19,6 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Integration test suite for Quizzer backend application.
+ * 
+ * <p>Tests Spring context loading, service layer persistence, entity relationships,
+ * repository query methods, and cascade deletion across the Quiz -> Question -> AnswerOption hierarchy.</p>
+ */
 @SpringBootTest
 class QuizApplicationTests {
 
@@ -27,6 +33,9 @@ class QuizApplicationTests {
 	private final QuestionRepository questionRepository;
 	private final AnswerOptionRepository answerOptionRepository;
 
+	/**
+	 * Constructor injection for Spring Boot integration test dependencies.
+	 */
 	@Autowired
 	QuizApplicationTests(AddQuizService addQuizService,
 						 QuizRepository quizRepository,
@@ -38,10 +47,16 @@ class QuizApplicationTests {
 		this.answerOptionRepository = answerOptionRepository;
 	}
 
+	/**
+	 * Verifies that the Spring Boot ApplicationContext loads successfully.
+	 */
 	@Test
 	void contextLoads() {
 	}
 
+	/**
+	 * Tests adding a basic Quiz to the database via AddQuizService and verifying its retrieval.
+	 */
 	@Test
 	void addsQuizToDatabase() {
 		Quiz quiz = new Quiz("Backend Engineering", "Backend quiz", "BE101", false);
@@ -53,38 +68,48 @@ class QuizApplicationTests {
 		assertEquals("Backend Engineering", quizRepository.findById(savedQuiz.getId()).orElseThrow().getName());
 	}
 
+	/**
+	 * Tests the full three-tier domain hierarchy (Quiz -> Question -> AnswerOption),
+	 * bidirectional associations, query methods, and cascade deletion.
+	 */
 	@Test
 	void testEntityHierarchyAndCascade() {
-		// 1. Create and save Quiz
+		// 1. Create Quiz entity
 		Quiz quiz = new Quiz("Scrum Framework", "Learn Scrum", "SOF005AS3AE", true);
+
+		// 2. Create Question entity and attach to Quiz
+		Question question = new Question("What is Sprint Retrospective?", "Normal", quiz);
+		quiz.addQuestion(question);
+
+		// 3. Create AnswerOption entities and attach to Question
+		AnswerOption opt1 = new AnswerOption("Improve the team's process", true, question);
+		AnswerOption opt2 = new AnswerOption("Write more code", false, question);
+		question.addAnswerOption(opt1);
+		question.addAnswerOption(opt2);
+
+		// 4. Save via root Quiz (CascadeType.ALL automatically cascades to Question and AnswerOption)
 		Quiz savedQuiz = quizRepository.save(quiz);
 		assertNotNull(savedQuiz.getId());
+		Long savedQuizId = savedQuiz.getId();
 
-		// 2. Create Question linked to Quiz
-		Question question = new Question("What is Sprint Retrospective?", "Normal", savedQuiz);
-		Question savedQuestion = questionRepository.save(question);
-		assertNotNull(savedQuestion.getId());
-
-		// 3. Create AnswerOptions linked to Question
-		AnswerOption opt1 = new AnswerOption("Improve the team's process", true, savedQuestion);
-		AnswerOption opt2 = new AnswerOption("Write more code", false, savedQuestion);
-		answerOptionRepository.save(opt1);
-		answerOptionRepository.save(opt2);
-
-		// 4. Verify query methods
-		List<Question> questions = questionRepository.findByQuizId(savedQuiz.getId());
+		// Verify that questions were persisted via cascade
+		List<Question> questions = questionRepository.findByQuizId(savedQuizId);
 		assertEquals(1, questions.size());
+		Long savedQuestionId = questions.get(0).getId();
 
-		List<AnswerOption> options = answerOptionRepository.findByQuestionId(savedQuestion.getId());
+		// Verify that answer options were persisted via cascade
+		List<AnswerOption> options = answerOptionRepository.findByQuestionId(savedQuestionId);
 		assertEquals(2, options.size());
 
+		// Verify custom repository query for published quizzes
 		List<Quiz> publishedQuizzes = quizRepository.findByIsPublishedTrue();
-		assertTrue(publishedQuizzes.stream().anyMatch(q -> q.getId().equals(savedQuiz.getId())));
+		assertTrue(publishedQuizzes.stream().anyMatch(q -> q.getId().equals(savedQuizId)));
 
-		// 5. Test Cascade Deletion: deleting quiz should delete question and answer options
+		// 5. Test Cascade Deletion: deleting the root Quiz cascades deletion down to Question and AnswerOption
 		quizRepository.delete(savedQuiz);
-		assertFalse(quizRepository.findById(savedQuiz.getId()).isPresent());
-		assertEquals(0, questionRepository.findByQuizId(savedQuiz.getId()).size());
-		assertEquals(0, answerOptionRepository.findByQuestionId(savedQuestion.getId()).size());
+
+		assertFalse(quizRepository.findById(savedQuizId).isPresent());
+		assertEquals(0, questionRepository.findByQuizId(savedQuizId).size());
+		assertEquals(0, answerOptionRepository.findByQuestionId(savedQuestionId).size());
 	}
 }
