@@ -20,31 +20,34 @@
 ## Milestone 1: Environment, Dependencies & Build Foundation
 - [x] **Task 1.1**: Initialize Git repository and add `.gitignore` for Java/Maven/VS Code.
 - [x] **Task 1.2**: Configure in-memory H2 database and H2 console in `application.properties`.
-- [ ] **Task 1.3**: Resolve `pom.xml` build configuration (Set Spring Boot parent to `3.4.2`, replace invalid `spring-boot-starter-webmvc` with `spring-boot-starter-web`, add standard `spring-boot-starter-test`).
-- [ ] **Task 1.4**: Verify clean Maven compile and test execution (`.\mvnw.cmd clean test-compile`).
+- [x] **Task 1.3**: Resolve `pom.xml` build configuration (Set Spring Boot parent to `3.4.2`, replace invalid `spring-boot-starter-webmvc` with `spring-boot-starter-web`, add standard `spring-boot-starter-test`).
+- [x] **Task 1.4**: Verify build environment & Maven wrapper configuration (Synchronized `distributionUrl` in `maven-wrapper.properties` with Maven 3.9.16 and verified starter configuration).
 
 ---
 
-## Milestone 2: Domain Model & Entity Relationships
+## Milestone 2: Domain Model, Service & Entity Relationships
 - [x] **Task 2.1**: Create baseline `Quiz` JPA entity and `QuizRepository`.
-- [ ] **Task 2.2**: Enhance `Quiz` entity with `createdAt` timestamp, proper camelCase `courseCode`, default `isPublished = false`, and bidirectional relationship to `Question`.
-- [ ] **Task 2.3**: Create `Question` JPA entity with fields (`id`, `questionText`, `difficulty` defaulting to `"Normal"`), `@ManyToOne` relationship to `Quiz`, and bidirectional relationship to `AnswerOption`.
-- [ ] **Task 2.4**: Create `AnswerOption` JPA entity with fields (`id`, `optionText`, `isCorrect` defaulting to `false`), and `@ManyToOne` relationship to `Question`.
-- [ ] **Task 2.5**: Configure `@JsonIgnore` on `@OneToMany` collections (`Quiz.questions`, `Question.answerOptions`) and establish `CascadeType.ALL` with `orphanRemoval = true`.
-- [ ] **Task 2.6**: Create `QuestionRepository` and `AnswerOptionRepository` interfaces and add query methods (e.g., `findByIsPublishedTrue()` in `QuizRepository`).
+- [x] **Task 2.2**: Implement `AddQuizService` (`service/AddQuizService.java`) and baseline test in `QuizApplicationTests.java`. *(Completed in commit `8924868` & `549bc90`)*
+- [ ] **Task 2.3**: Enhance `Quiz` entity with `createdAt` timestamp, proper camelCase `courseCode`, default `isPublished = false`, and bidirectional relationship to `Question`.
+- [ ] **Task 2.4**: Create `Question` JPA entity with fields (`id`, `questionText`, `difficulty` defaulting to `"Normal"`), `@ManyToOne` relationship to `Quiz`, and bidirectional relationship to `AnswerOption`.
+- [ ] **Task 2.5**: Create `AnswerOption` JPA entity with fields (`id`, `optionText`, `isCorrect` defaulting to `false`), and `@ManyToOne` relationship to `Question`.
+- [ ] **Task 2.6**: Configure `@JsonIgnore` on `@OneToMany` collections (`Quiz.questions`, `Question.answerOptions`) and establish `CascadeType.ALL` with `orphanRemoval = true`.
+- [ ] **Task 2.7**: Create `QuestionRepository` and `AnswerOptionRepository` interfaces and add query methods (e.g., `findByIsPublishedTrue()` in `QuizRepository`).
 
 ---
 
 ## Milestone 3: Teacher Dashboard — Quiz Management (US1, US2, US3, US4)
-- [ ] **Task 3.1**: Create `QuizController` and implement `GET /` and `GET /quizzes` to list all quizzes with `createdAt` date and action links (`quizzes.html`).
-- [ ] **Task 3.2**: Implement `GET /quizzes/add` and `POST /quizzes/add` with form validation, setting `createdAt = LocalDate.now()`, and saving to database (`add-quiz.html`).
+> *Note: Teacher dashboard uses server-rendered Thymeleaf HTML templates (separate from the `/api` REST endpoints).*
+- [ ] **Task 3.1**: Create `QuizController` (`web/QuizController.java`) and implement `GET /` and `GET /quizzes` to list all quizzes with `createdAt` date and action links (`quizzes.html`).
+- [ ] **Task 3.2**: Implement `GET /quizzes/add` and `POST /quizzes/add` with form validation, setting `createdAt = LocalDate.now()`, delegating to `AddQuizService`, and saving to database (`add-quiz.html`).
 - [ ] **Task 3.3**: Implement `GET /quizzes/edit/{id}` and `POST /quizzes/edit/{id}` to allow modifying quiz details and publication status (`edit-quiz.html`).
 - [ ] **Task 3.4**: Implement `GET /quizzes/delete/{id}` to cascade delete a quiz and redirect to the list.
-- [ ] **Task 3.5**: Add styling and navigation breadcrumbs to all quiz templates.
+- [ ] **Task 3.5**: Add styling, tables, and navigation breadcrumbs to all quiz templates.
 
 ---
 
 ## Milestone 4: Teacher Dashboard — Question Management (US5, US6, US7)
+> *Note: Free up `QuestionController.java` to serve HTML views for question management.*
 - [ ] **Task 4.1**: Implement `GET /quizzes/{quizId}/questions` in `QuestionController` to display all questions for a specific quiz (`questions.html`).
 - [ ] **Task 4.2**: Implement `GET /quizzes/{quizId}/questions/add` and `POST /quizzes/{quizId}/questions/add` to create and associate questions to a quiz (`add-question.html`).
 - [ ] **Task 4.3**: Implement `GET /questions/delete/{id}` in `QuestionController` to cascade delete a question and its answer options, redirecting to the quiz questions list.
@@ -60,8 +63,8 @@
 ---
 
 ## Milestone 6: Student Dashboard REST API & CORS (Exercise 20)
-- [ ] **Task 6.1**: Create `QuizRestController` under `com.DevElite.Quiz.web`.
-- [ ] **Task 6.2**: Implement `GET /api/quizzes` returning only published quizzes (`quizRepository.findByIsPublishedTrue()`).
+- [ ] **Task 6.1**: Realign REST endpoints: Create `QuizRestController` under `com.DevElite.Quiz.web` (migrating the existing `/api/quizzes` endpoints out of `QuestionController`).
+- [ ] **Task 6.2**: Update `GET /api/quizzes` to return only published quizzes (`quizRepository.findByIsPublishedTrue()`).
 - [ ] **Task 6.3**: Add `@CrossOrigin(origins = "*")` to `QuizRestController` to permit cross-origin requests from the student frontend.
 - [ ] **Task 6.4**: Write integration tests using `MockMvc` to verify only published quizzes are returned and JSON serialization does not cycle.
 
@@ -79,4 +82,3 @@
 - [ ] **Task 8.2**: Verify and refine Developer Guide in `README.md` (exact command line instructions, port information, H2 credentials).
 - [ ] **Task 8.3**: Document Rahti production deployment steps (PostgreSQL setup, application properties, container configuration).
 - [ ] **Task 8.4**: Prepare GitHub Release notes (`sprint1` tag) and Sprint Review presentation demo guide.
-
