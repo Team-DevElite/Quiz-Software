@@ -1,14 +1,22 @@
 package com.DevElite.Quiz.domain;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
-@Entity 
+@Entity
 public class Quiz {
-    
-    @Id 
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -16,6 +24,11 @@ public class Quiz {
     private String description;
     private String courseCode;
     private Boolean isPublished = false;
+    private LocalDate createdAt = LocalDate.now();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
 
     public Quiz() {
     }
@@ -24,7 +37,16 @@ public class Quiz {
         this.name = name;
         this.description = description;
         this.courseCode = courseCode;
-        this.isPublished = isPublished;
+        this.isPublished = (isPublished != null) ? isPublished : false;
+        this.createdAt = LocalDate.now();
+    }
+
+    public Quiz(String name, String description, String courseCode, Boolean isPublished, LocalDate createdAt) {
+        this.name = name;
+        this.description = description;
+        this.courseCode = courseCode;
+        this.isPublished = (isPublished != null) ? isPublished : false;
+        this.createdAt = (createdAt != null) ? createdAt : LocalDate.now();
     }
 
     public Quiz(Long id, String name, String description, String courseCode, Boolean isPublished) {
@@ -32,7 +54,8 @@ public class Quiz {
         this.name = name;
         this.description = description;
         this.courseCode = courseCode;
-        this.isPublished = isPublished;
+        this.isPublished = (isPublished != null) ? isPublished : false;
+        this.createdAt = LocalDate.now();
     }
 
     public Long getId() {
@@ -81,5 +104,21 @@ public class Quiz {
 
     public void setIsPublished(Boolean isPublished) {
         this.isPublished = isPublished;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 }

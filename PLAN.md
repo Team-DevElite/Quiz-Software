@@ -28,11 +28,11 @@
 ## Milestone 2: Domain Model, Service & Entity Relationships
 - [x] **Task 2.1**: Create baseline `Quiz` JPA entity and `QuizRepository`.
 - [x] **Task 2.2**: Implement `AddQuizService` (`service/AddQuizService.java`) and baseline test in `QuizApplicationTests.java`. *(Completed in commit `8924868` & `549bc90`)*
-- [ ] **Task 2.3**: Enhance `Quiz` entity with `createdAt` timestamp, proper camelCase `courseCode`, default `isPublished = false`, and bidirectional relationship to `Question`.
-- [ ] **Task 2.4**: Create `Question` JPA entity with fields (`id`, `questionText`, `difficulty` defaulting to `"Normal"`), `@ManyToOne` relationship to `Quiz`, and bidirectional relationship to `AnswerOption`.
-- [ ] **Task 2.5**: Create `AnswerOption` JPA entity with fields (`id`, `optionText`, `isCorrect` defaulting to `false`), and `@ManyToOne` relationship to `Question`.
-- [ ] **Task 2.6**: Configure `@JsonIgnore` on `@OneToMany` collections (`Quiz.questions`, `Question.answerOptions`) and establish `CascadeType.ALL` with `orphanRemoval = true`.
-- [ ] **Task 2.7**: Create `QuestionRepository` and `AnswerOptionRepository` interfaces and add query methods (e.g., `findByIsPublishedTrue()` in `QuizRepository`).
+- [x] **Task 2.3**: Enhance `Quiz` entity with `createdAt` timestamp, proper camelCase `courseCode`, default `isPublished = false`, and bidirectional relationship to `Question`.
+- [x] **Task 2.4**: Create `Question` JPA entity with fields (`id`, `questionText`, `difficulty` defaulting to `"Normal"`), `@ManyToOne` relationship to `Quiz`, and bidirectional relationship to `AnswerOption`.
+- [x] **Task 2.5**: Create `AnswerOption` JPA entity with fields (`id`, `optionText`, `isCorrect` defaulting to `false`), and `@ManyToOne` relationship to `Question`.
+- [x] **Task 2.6**: Configure `@JsonIgnore` on `@OneToMany` collections (`Quiz.questions`, `Question.answerOptions`) and establish `CascadeType.ALL` with `orphanRemoval = true`.
+- [x] **Task 2.7**: Create `QuestionRepository` and `AnswerOptionRepository` interfaces and add query methods (e.g., `findByIsPublishedTrue()`, `findByQuizId()`, `findByQuestionId()`).
 
 ---
 
