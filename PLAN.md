@@ -38,11 +38,11 @@
 
 ## Milestone 3: Teacher Dashboard — Quiz Management (US1, US2, US3, US4)
 > *Note: Teacher dashboard uses server-rendered Thymeleaf HTML templates (separate from the `/api` REST endpoints).*
-- [ ] **Task 3.1**: Create `QuizController` (`web/QuizController.java`) and implement `GET /` and `GET /quizzes` to list all quizzes with `createdAt` date and action links (`quizzes.html`).
-- [ ] **Task 3.2**: Implement `GET /quizzes/add` and `POST /quizzes/add` with form validation, setting `createdAt = LocalDate.now()`, delegating to `AddQuizService`, and saving to database (`add-quiz.html`).
-- [ ] **Task 3.3**: Implement `GET /quizzes/edit/{id}` and `POST /quizzes/edit/{id}` to allow modifying quiz details and publication status (`edit-quiz.html`).
-- [ ] **Task 3.4**: Implement `GET /quizzes/delete/{id}` to cascade delete a quiz and redirect to the list.
-- [ ] **Task 3.5**: Add styling, tables, and navigation breadcrumbs to all quiz templates.
+- [x] **Task 3.1**: Create `QuizController` (`web/QuizController.java`) and implement `GET /` and `GET /quizzes` to list all quizzes with `createdAt` date and action links (`quizzes.html`).
+- [x] **Task 3.2**: Implement `GET /quizzes/add` and `POST /quizzes/add` with form validation, setting `createdAt = LocalDate.now()`, delegating to `QuizService`, and saving to database (`add-quiz.html`).
+- [x] **Task 3.3**: Refactor `AddQuizService` to `QuizService` with full CRUD methods, and implement `GET /quizzes/edit/{id}` and `POST /quizzes/edit/{id}` (`edit-quiz.html`).
+- [x] **Task 3.4**: Implement `GET /quizzes/delete/{id}` in `QuizController` to cascade delete a quiz and redirect to `/quizzes`.
+- [x] **Task 3.5**: Add styling, responsive tables, badge indicators, and navigation breadcrumbs across all quiz templates.
 
 ---
 
