@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.DevElite.Quiz.domain.Quiz;
-import com.DevElite.Quiz.domain.QuizRepository;
-import com.DevElite.Quiz.service.AddQuizService;
+import com.DevElite.Quiz.service.QuizService;
 
 /**
  * Controller currently managing quiz endpoints at /api/quizzes.
@@ -23,15 +22,13 @@ import com.DevElite.Quiz.service.AddQuizService;
 @RequestMapping("/api/quizzes")
 public class QuestionController {
 
-    private final AddQuizService addQuizService;
-    private final QuizRepository quizRepository;
+    private final QuizService quizService;
 
     /**
-     * Constructor injection for required dependencies.
+     * Constructor injection for QuizService dependency.
      */
-    public QuestionController(AddQuizService addQuizService, QuizRepository quizRepository) {
-        this.addQuizService = addQuizService;
-        this.quizRepository = quizRepository;
+    public QuestionController(QuizService quizService) {
+        this.quizService = quizService;
     }
 
     /**
@@ -42,7 +39,7 @@ public class QuestionController {
      */
     @PostMapping
     public ResponseEntity<Quiz> addQuiz(@RequestBody Quiz quiz) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(addQuizService.addQuiz(quiz));
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizService.saveQuiz(quiz));
     }
 
     /**
@@ -52,6 +49,6 @@ public class QuestionController {
      */
     @GetMapping
     public Iterable<Quiz> getQuizzes() {
-        return quizRepository.findAll();
+        return quizService.getAllQuizzes();
     }
 }
