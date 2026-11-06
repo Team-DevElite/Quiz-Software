@@ -14,11 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 class QuizApplicationTests {
 
-	@Autowired
-	private AddQuizService addQuizService;
+	private final AddQuizService addQuizService;
+	private final QuizRepository quizRepository;
 
 	@Autowired
-	private QuizRepository quizRepository;
+	QuizApplicationTests(AddQuizService addQuizService, QuizRepository quizRepository) {
+		this.addQuizService = addQuizService;
+		this.quizRepository = quizRepository;
+	}
 
 	@Test
 	void contextLoads() {
