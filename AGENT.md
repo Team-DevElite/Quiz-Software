@@ -105,7 +105,14 @@ classDiagram
 - **Defensive Design**:
   - Set meaningful defaults (e.g., difficulty defaults to `"Normal"`, `isPublished` defaults to `false`, `isCorrect` defaults to `false`).
 
-### 3.2 HTML & Thymeleaf
+### 3.2 Self-Documenting Code & Comprehensive Commenting Standards
+- **Class-Level Javadoc**: Every class, interface, service, repository, and controller must have class-level Javadoc explaining its purpose, architectural role, and user stories it serves.
+- **Method & Constructor Documentation**: Document all public methods, parameters (`@param`), return types (`@return`), and potential side effects.
+- **Field & Annotation Explanation**: Annotate entity fields with comments detailing data constraints, relationships, cascade rules, and serialization tags (`@JsonIgnore`).
+- **In-Line Rationale**: Use inline comments to explain non-obvious technical decisions (such as bidirectional relation management, cascade deletion order, and CORS configuration).
+- **Self-Documenting Code**: Choose descriptive, intention-revealing variable and method names so code reads like clean prose while maintaining comprehensive comments.
+
+### 3.3 HTML & Thymeleaf
 - Use `th:href` and `th:action` for all dynamic links and form submissions.
 - Use `th:field="*{fieldName}"` for form object binding.
 - Ensure forms pass entity IDs through path variables or hidden inputs where required.
