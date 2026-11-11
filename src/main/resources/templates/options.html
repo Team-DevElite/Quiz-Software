@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Answer Options — Quizzer</title>
     <style>
-    
+
         body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 2rem; }
         .container { max-width: 900px; margin: 0 auto; }
         .card { background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #e2e8f0; }
@@ -19,8 +19,12 @@
 </head>
 <body>
 <div class="container">
-    <p><a th:href="@{/quizzes}" style="color: #2563eb; text-decoration: none;">← Back to Quizzes</a></p>
-    
+    <!-- Back to the list of questions of the quiz this question belongs to -->
+    <p>
+        <a th:href="@{/quizzes/{id}/questions(id=${question.quiz.id})}"
+           style="color: #2563eb; text-decoration: none;">← Back to Questions</a>
+    </p>
+
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
@@ -30,8 +34,10 @@
             <a th:href="@{/questions/{id}/options/add(id=${question.id})}" class="btn btn-primary">+ Add Answer Option</a>
         </div>
 
+        <!-- Shown when the question has no answer options yet -->
         <div th:if="${#lists.isEmpty(options)}" style="text-align: center; padding: 2rem; color: #64748b;">
-           
+            <h3>No answer options found</h3>
+            <p>This question doesn't have any answer options yet.</p>
         </div>
 
         <table th:unless="${#lists.isEmpty(options)}">
@@ -50,7 +56,7 @@
                     <span th:unless="${option.isCorrect}" class="badge-draft">Incorrect</span>
                 </td>
                 <td>
-                    <a th:href="@{/options/delete/{id}(id=${option.id})}" 
+                    <a th:href="@{/options/delete/{id}(id=${option.id})}"
                        class="btn btn-danger"
                        onclick="return confirm('Delete this answer option?');">Delete</a>
                 </td>

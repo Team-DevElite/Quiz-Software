@@ -27,7 +27,7 @@ import com.DevElite.Quiz.domain.QuestionRepository;
 import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
 import com.DevElite.Quiz.service.QuizService;
-import com.DevElite.Quiz.web.QuestionController;
+import com.DevElite.Quiz.web.QuizRestController;
 
 /**
  * Integration test suite for Quizzer backend application.
@@ -62,7 +62,7 @@ class QuizApplicationTests {
 	}
 
 	@Autowired
-	private QuestionController questionController;
+	private QuizRestController quizRestController;
 
 	/**
 	 * Verifies that the Spring Boot ApplicationContext loads successfully.
@@ -89,7 +89,7 @@ class QuizApplicationTests {
 	void deletesQuizFromDatabase() {
 		Quiz savedQuiz = quizService.addQuiz(new Quiz("Delete me", "Quiz to delete", "BE102", false));
 
-		var response = questionController.deleteQuiz(savedQuiz.getId());
+		var response = quizRestController.deleteQuiz(savedQuiz.getId());
 
 		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 		assertFalse(quizRepository.existsById(savedQuiz.getId()));
@@ -97,7 +97,7 @@ class QuizApplicationTests {
 
 	@Test
 	void returnsNotFoundWhenDeletingMissingQuiz() {
-		var response = questionController.deleteQuiz(Long.MAX_VALUE);
+		var response = quizRestController.deleteQuiz(Long.MAX_VALUE);
 
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 	}
