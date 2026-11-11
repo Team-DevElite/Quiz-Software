@@ -48,22 +48,22 @@
 
 ## Milestone 4: Teacher Dashboard — Question Management (US5, US6, US7)
 > *Note: Free up `QuestionController.java` to serve HTML views for question management.*
-- [ ] **Task 4.1**: Implement `GET /quizzes/{quizId}/questions` in `QuestionController` to display all questions for a specific quiz (`questions.html`).
+- [x] **Task 4.1**: Implement `GET /quizzes/{quizId}/questions` in `QuestionController` to display all questions for a specific quiz (`questions.html`). *(Completed in commit `446de28` & `3480649`)*
 - [ ] **Task 4.2**: Implement `GET /quizzes/{quizId}/questions/add` and `POST /quizzes/{quizId}/questions/add` to create and associate questions to a quiz (`add-question.html`).
 - [ ] **Task 4.3**: Implement `GET /questions/delete/{id}` in `QuestionController` to cascade delete a question and its answer options, redirecting to the quiz questions list.
 
 ---
 
 ## Milestone 5: Teacher Dashboard — Answer Option Management (US8, US9, US10)
-- [ ] **Task 5.1**: Create `AnswerOptionController` and implement `GET /questions/{questionId}/options` to display answer options with correctness indicators (`options.html`).
-- [ ] **Task 5.2**: Implement `GET /questions/{questionId}/options/add` and `POST /questions/{questionId}/options/add` to add options to a question (`add-option.html`).
+- [x] **Task 5.1**: Create `AnswerOptionController` and implement `GET /questions/{questionId}/options` to display answer options with correctness indicators (`options.html`). *(Completed in commit `85a62d3`)*
+- [x] **Task 5.2**: Implement `GET /questions/{questionId}/options/add` and `POST /questions/{questionId}/options/add` to add options to a question (`add-option.html`). *(Completed in commit `85a62d3`)*
 - [ ] **Task 5.3**: Implement `GET /options/edit/{id}` and `POST /options/edit/{id}` to update option text and correctness status (`edit-option.html`).
-- [ ] **Task 5.4**: Implement `GET /options/delete/{id}` to delete an answer option and return to the options view.
+- [x] **Task 5.4**: Implement `GET /options/delete/{id}` to delete an answer option and return to the options view. *(Completed in commit `85a62d3`)*
 
 ---
 
 ## Milestone 6: Student Dashboard REST API & CORS (Exercise 20)
-- [ ] **Task 6.1**: Realign REST endpoints: Create `QuizRestController` under `com.DevElite.Quiz.web` (migrating the existing `/api/quizzes` endpoints out of `QuestionController`).
+- [x] **Task 6.1**: Realign REST endpoints: Create `QuizRestController` under `com.DevElite.Quiz.web` (migrating the existing `/api/quizzes` endpoints out of `QuestionController`). *(Completed in commit `446de28` & `3480649`)*
 - [ ] **Task 6.2**: Update `GET /api/quizzes` to return only published quizzes (`quizRepository.findByIsPublishedTrue()`).
 - [ ] **Task 6.3**: Add `@CrossOrigin(origins = "*")` to `QuizRestController` to permit cross-origin requests from the student frontend.
 - [ ] **Task 6.4**: Write integration tests using `MockMvc` to verify only published quizzes are returned and JSON serialization does not cycle.
