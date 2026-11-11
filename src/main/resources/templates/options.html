@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Answer Options — Quizzer</title>
+    <style>
+    
+        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 2rem; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .btn { padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .badge-success { background: #dcfce7; color: #16a34a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+        .badge-draft { background: #f1f5f9; color: #64748b; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p><a th:href="@{/quizzes}" style="color: #2563eb; text-decoration: none;">← Back to Quizzes</a></p>
+    
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Answer Options</h2>
+                <p style="color: #64748b; margin-top: 0.25rem;" th:text="'Question: ' + ${question.questionText}"></p>
+            </div>
+            <a th:href="@{/questions/{id}/options/add(id=${question.id})}" class="btn btn-primary">+ Add Answer Option</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(options)}" style="text-align: center; padding: 2rem; color: #64748b;">
+           
+        </div>
+
+        <table th:unless="${#lists.isEmpty(options)}">
+            <thead>
+            <tr>
+                <th>Option Text</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="option : ${options}">
+                <td th:text="${option.optionText}">Option text here</td>
+                <td>
+                    <span th:if="${option.isCorrect}" class="badge-success">Correct</span>
+                    <span th:unless="${option.isCorrect}" class="badge-draft">Incorrect</span>
+                </td>
+                <td>
+                    <a th:href="@{/options/delete/{id}(id=${option.id})}" 
+                       class="btn btn-danger"
+                       onclick="return confirm('Delete this answer option?');">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

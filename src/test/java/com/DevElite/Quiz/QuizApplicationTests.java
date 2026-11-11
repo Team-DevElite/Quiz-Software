@@ -6,10 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.web.servlet.MockMvc;
 
 import com.DevElite.Quiz.domain.AnswerOption;
 import com.DevElite.Quiz.domain.AnswerOptionRepository;
@@ -17,38 +26,39 @@ import com.DevElite.Quiz.domain.Question;
 import com.DevElite.Quiz.domain.QuestionRepository;
 import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
-import com.DevElite.Quiz.service.AddQuizService;
+import com.DevElite.Quiz.service.QuizService;
 import com.DevElite.Quiz.web.QuestionController;
 
 /**
  * Integration test suite for Quizzer backend application.
- *
- * <p>
- * Tests Spring context loading, service layer persistence, entity
- * relationships, repository query methods, and cascade deletion across the Quiz
- * -> Question -> AnswerOption hierarchy.
- * </p>
+ * 
+ * <p>Tests Spring context loading, service layer persistence, entity relationships,
+ * repository query methods, and cascade deletion across the Quiz -> Question -> AnswerOption hierarchy.</p>
  */
 @SpringBootTest
+@AutoConfigureMockMvc
 class QuizApplicationTests {
 
-	private final AddQuizService addQuizService;
+	private final QuizService quizService;
 	private final QuizRepository quizRepository;
 	private final QuestionRepository questionRepository;
 	private final AnswerOptionRepository answerOptionRepository;
+	private final MockMvc mockMvc;
 
 	/**
 	 * Constructor injection for Spring Boot integration test dependencies.
 	 */
 	@Autowired
-	QuizApplicationTests(AddQuizService addQuizService,
-			QuizRepository quizRepository,
-			QuestionRepository questionRepository,
-			AnswerOptionRepository answerOptionRepository) {
-		this.addQuizService = addQuizService;
+	QuizApplicationTests(QuizService quizService,
+						 QuizRepository quizRepository,
+						 QuestionRepository questionRepository,
+						 AnswerOptionRepository answerOptionRepository,
+						MockMvc mockMvc) {
+		this.quizService = quizService;
 		this.quizRepository = quizRepository;
 		this.questionRepository = questionRepository;
 		this.answerOptionRepository = answerOptionRepository;
+		this.mockMvc = mockMvc;
 	}
 
 	@Autowired
@@ -62,14 +72,13 @@ class QuizApplicationTests {
 	}
 
 	/**
-	 * Tests adding a basic Quiz to the database via AddQuizService and
-	 * verifying its retrieval.
+	 * Tests adding a basic Quiz to the database via quizService and verifying its retrieval.
 	 */
 	@Test
 	void addsQuizToDatabase() {
 		Quiz quiz = new Quiz("Backend Engineering", "Backend quiz", "BE101", false);
 
-		Quiz savedQuiz = addQuizService.addQuiz(quiz);
+		Quiz savedQuiz = quizService.saveQuiz(quiz);
 
 		assertNotNull(savedQuiz.getId());
 		assertNotNull(savedQuiz.getCreatedAt());
@@ -78,7 +87,7 @@ class QuizApplicationTests {
 
 	@Test
 	void deletesQuizFromDatabase() {
-		Quiz savedQuiz = addQuizService.addQuiz(new Quiz("Delete me", "Quiz to delete", "BE102", false));
+		Quiz savedQuiz = quizService.addQuiz(new Quiz("Delete me", "Quiz to delete", "BE102", false));
 
 		var response = questionController.deleteQuiz(savedQuiz.getId());
 
@@ -138,5 +147,106 @@ class QuizApplicationTests {
 		assertFalse(quizRepository.findById(savedQuizId).isPresent());
 		assertEquals(0, questionRepository.findByQuizId(savedQuizId).size());
 		assertEquals(0, answerOptionRepository.findByQuestionId(savedQuestionId).size());
+	}
+
+	/**
+	 * Tests QuizController endpoints (GET / and GET /quizzes) for User Story 2.
+	 * Verifies HTTP 200 OK, view name "quizzes", and model attribute "quizzes".
+	 */
+	@Test
+	void testQuizListEndpoints() throws Exception {
+		mockMvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("quizzes"))
+				.andExpect(model().attributeExists("quizzes"));
+
+		mockMvc.perform(get("/quizzes"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("quizzes"))
+				.andExpect(model().attributeExists("quizzes"));
+	}
+
+	/**
+	 * Tests QuizController endpoints for creating a Quiz (User Story 1):
+	 * - GET /quizzes/add displays the empty form.
+	 * - POST /quizzes/add saves the quiz and redirects to /quizzes.
+	 */
+	@Test
+	void testAddQuizEndpoints() throws Exception {
+		// 1. Verify GET /quizzes/add
+		mockMvc.perform(get("/quizzes/add"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("add-quiz"))
+				.andExpect(model().attributeExists("quiz"));
+
+		// 2. Verify POST /quizzes/add
+		mockMvc.perform(post("/quizzes/add")
+				.param("name", "Software Architecture")
+				.param("courseCode", "SW101")
+				.param("description", "Design patterns and clean code")
+				.param("isPublished", "true"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/quizzes"));
+
+		// 3. Verify quiz is in the database
+		List<Quiz> matches = quizRepository.findByName("Software Architecture");
+		assertFalse(matches.isEmpty());
+		assertEquals("SW101", matches.get(0).getCourseCode());
+		assertTrue(matches.get(0).getIsPublished());
+		assertNotNull(matches.get(0).getCreatedAt());
+	}
+
+	/**
+	 * Tests QuizController endpoints for editing a Quiz (User Story 3):
+	 * - GET /quizzes/edit/{id} loads the edit form pre-populated.
+	 * - POST /quizzes/edit/{id} updates the quiz attributes and redirects.
+	 */
+	@Test
+	void testEditQuizEndpoints() throws Exception {
+		// 1. Seed a quiz to edit
+		Quiz quiz = quizService.saveQuiz(new Quiz("DevOps Basics", "Intro to CI/CD", "DO101", false));
+		Long quizId = quiz.getId();
+
+		// 2. Verify GET /quizzes/edit/{id}
+		mockMvc.perform(get("/quizzes/edit/" + quizId))
+				.andExpect(status().isOk())
+				.andExpect(view().name("edit-quiz"))
+				.andExpect(model().attributeExists("quiz"));
+
+		// 3. Verify POST /quizzes/edit/{id} updates values
+		mockMvc.perform(post("/quizzes/edit/" + quizId)
+				.param("name", "Advanced DevOps")
+				.param("courseCode", "DO202")
+				.param("description", "Kubernetes and GitOps")
+				.param("isPublished", "true"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/quizzes"));
+
+		// 4. Verify database reflects changes
+		Quiz updated = quizService.getQuizById(quizId).orElseThrow();
+		assertEquals("Advanced DevOps", updated.getName());
+		assertEquals("DO202", updated.getCourseCode());
+		assertEquals("Kubernetes and GitOps", updated.getDescription());
+		assertTrue(updated.getIsPublished());
+	}
+
+	/**
+	 * Tests QuizController endpoint for deleting a Quiz (User Story 4):
+	 * - GET /quizzes/delete/{id} removes the quiz and redirects to /quizzes.
+	 */
+	@Test
+	void testDeleteQuizEndpoint() throws Exception {
+		// 1. Seed a quiz to delete
+		Quiz quiz = quizService.saveQuiz(new Quiz("Temporary Quiz", "To be deleted", "TMP001", false));
+		Long quizId = quiz.getId();
+		assertTrue(quizRepository.findById(quizId).isPresent());
+
+		// 2. Perform GET /quizzes/delete/{id}
+		mockMvc.perform(get("/quizzes/delete/" + quizId))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/quizzes"));
+
+		// 3. Verify quiz is removed from database
+		assertFalse(quizRepository.findById(quizId).isPresent());
 	}
 }

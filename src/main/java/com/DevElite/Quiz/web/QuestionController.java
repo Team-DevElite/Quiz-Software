@@ -1,7 +1,5 @@
 package com.DevElite.Quiz.web;
 
-import java.util.Optional;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,29 +11,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.DevElite.Quiz.domain.Quiz;
-import com.DevElite.Quiz.domain.QuizRepository;
-import com.DevElite.Quiz.service.AddQuizService;
+import com.DevElite.Quiz.service.QuizService;
 
 /**
  * Controller currently managing quiz endpoints at /api/quizzes.
  * 
- * <p>Note: Per Milestone 6 in PLAN.md, this REST functionality will be cleanly
+ * <p>
+ * Note: Per Milestone 6 in PLAN.md, this REST functionality will be cleanly
  * migrated to QuizRestController, allowing QuestionController to manage teacher
- * question views (/quizzes/{quizId}/questions).</p>
+ * question views (/quizzes/{quizId}/questions).
+ * </p>
  */
 @RestController
 @RequestMapping("/api/quizzes")
 public class QuestionController {
 
-    private final AddQuizService addQuizService;
-    private final QuizRepository quizRepository;
+    private final QuizService quizService;
 
     /**
-     * Constructor injection for required dependencies.
+     * Constructor injection for QuizService dependency.
      */
-    public QuestionController(AddQuizService addQuizService, QuizRepository quizRepository) {
-        this.addQuizService = addQuizService;
-        this.quizRepository = quizRepository;
+    public QuestionController(QuizService quizService) {
+        this.quizService = quizService;
     }
 
     /**
@@ -46,7 +43,7 @@ public class QuestionController {
      */
     @PostMapping
     public ResponseEntity<Quiz> addQuiz(@RequestBody Quiz quiz) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(addQuizService.addQuiz(quiz));
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizService.saveQuiz(quiz));
     }
 
     /**
@@ -56,17 +53,16 @@ public class QuestionController {
      */
     @GetMapping
     public Iterable<Quiz> getQuizzes() {
-        return quizRepository.findAll();
+        return quizService.getAllQuizzes();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
-        Optional<Quiz> quiz = quizRepository.findById(id);
-        if (quiz.isEmpty()) {
+        if (quizService.getQuizById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        quizRepository.delete(quiz.get());
+        quizService.deleteQuiz(id);
         return ResponseEntity.noContent().build();
     }
 }
