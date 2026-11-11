@@ -17,8 +17,12 @@ import com.DevElite.Quiz.service.QuizService;
 /**
  * Controller for the teacher's question pages (User Stories 5, 6, and 7).
  * 
- * <p>Handles listing questions for a quiz, presenting and processing the add-question
- * form, and cascading deletion of a question along with its associated answer options.</p>
+ * <p>
+ * Handles listing questions for a quiz, presenting and processing the
+ * add-question
+ * form, and cascading deletion of a question along with its associated answer
+ * options.
+ * </p>
  */
 @Controller
 public class QuestionController {
@@ -30,7 +34,7 @@ public class QuestionController {
      * Constructor injection for required dependencies.
      * 
      * @param questionRepository Spring Data repository for Question entities
-     * @param quizService Service layer for Quiz management
+     * @param quizService        Service layer for Quiz management
      */
     public QuestionController(QuestionRepository questionRepository, QuizService quizService) {
         this.questionRepository = questionRepository;
@@ -38,7 +42,8 @@ public class QuestionController {
     }
 
     /**
-     * Shows all questions of one quiz so the teacher knows which questions it has (User Story 6).
+     * Shows all questions of one quiz so the teacher knows which questions it has
+     * (User Story 6).
      *
      * @param quizId ID of the quiz
      * @param model  passes the quiz and its questions to the view
@@ -76,11 +81,12 @@ public class QuestionController {
      * 
      * @param quizId   ID of the parent quiz
      * @param question The question object bound from the form
-     * @return Redirect URL back to the quiz's question list ("/quizzes/{quizId}/questions")
+     * @return Redirect URL back to the quiz's question list
+     *         ("/quizzes/{quizId}/questions")
      */
     @PostMapping("/quizzes/{quizId}/questions/add")
     public String saveQuestion(@PathVariable("quizId") Long quizId,
-                               @ModelAttribute("question") Question question) {
+            @ModelAttribute("question") Question question) {
         Quiz quiz = quizService.getQuizById(quizId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found: " + quizId));
         question.setQuiz(quiz);
@@ -92,7 +98,8 @@ public class QuestionController {
     }
 
     /**
-     * Deletes a question and its child answer options, then redirects back to the quiz question list (User Story 7).
+     * Deletes a question and its child answer options, then redirects back to the
+     * quiz question list (User Story 7).
      * 
      * @param id The ID of the question to delete
      * @return Redirect URL back to the parent quiz's questions page

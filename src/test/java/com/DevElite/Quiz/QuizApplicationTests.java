@@ -2,20 +2,6 @@ package com.DevElite.Quiz;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-
-import com.DevElite.Quiz.domain.AnswerOption;
-import com.DevElite.Quiz.domain.AnswerOptionRepository;
-import com.DevElite.Quiz.domain.Question;
-import com.DevElite.Quiz.domain.QuestionRepository;
-import com.DevElite.Quiz.domain.Quiz;
-import com.DevElite.Quiz.domain.QuizRepository;
-import com.DevElite.Quiz.service.QuizService;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,12 +17,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.springframework.http.MediaType;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.DevElite.Quiz.domain.AnswerOption;
+import com.DevElite.Quiz.domain.AnswerOptionRepository;
+import com.DevElite.Quiz.domain.Question;
+import com.DevElite.Quiz.domain.QuestionRepository;
+import com.DevElite.Quiz.domain.Quiz;
+import com.DevElite.Quiz.domain.QuizRepository;
+import com.DevElite.Quiz.service.QuizService;
 
 /**
  * Integration test suite for Quizzer backend application.
  * 
- * <p>Tests Spring context loading, service layer persistence, entity relationships,
- * repository query methods, cascade deletion, and web controller endpoints.</p>
+ * <p>
+ * Tests Spring context loading, service layer persistence, entity
+ * relationships,
+ * repository query methods, and cascade deletion across the Quiz -> Question ->
+ * AnswerOption hierarchy.
+ * </p>
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -53,10 +56,10 @@ class QuizApplicationTests {
 	 */
 	@Autowired
 	QuizApplicationTests(QuizService quizService,
-						 QuizRepository quizRepository,
-						 QuestionRepository questionRepository,
-						 AnswerOptionRepository answerOptionRepository,
-						 MockMvc mockMvc) {
+			QuizRepository quizRepository,
+			QuestionRepository questionRepository,
+			AnswerOptionRepository answerOptionRepository,
+			MockMvc mockMvc) {
 		this.quizService = quizService;
 		this.quizRepository = quizRepository;
 		this.questionRepository = questionRepository;
@@ -72,7 +75,8 @@ class QuizApplicationTests {
 	}
 
 	/**
-	 * Tests adding a basic Quiz to the database via QuizService and verifying its retrieval.
+	 * Tests adding a basic Quiz to the database via quizService and verifying its
+	 * retrieval.
 	 */
 	@Test
 	void addsQuizToDatabase() {
@@ -86,8 +90,9 @@ class QuizApplicationTests {
 	}
 
 	/**
-	 * Tests the full three-tier domain hierarchy (Quiz -> Question -> AnswerOption),
-	 * bidirectional associations, query methods, and cascade deletion.
+	 * Tests the full three-tier domain hierarchy (Quiz -> Question ->
+	 * AnswerOption), bidirectional associations, query methods, and cascade
+	 * deletion.
 	 */
 	@Test
 	void testEntityHierarchyAndCascade() {
@@ -104,7 +109,8 @@ class QuizApplicationTests {
 		question.addAnswerOption(opt1);
 		question.addAnswerOption(opt2);
 
-		// 4. Save via root Quiz (CascadeType.ALL automatically cascades to Question and AnswerOption)
+		// 4. Save via root Quiz (CascadeType.ALL automatically cascades to Question and
+		// AnswerOption)
 		Quiz savedQuiz = quizRepository.save(quiz);
 		assertNotNull(savedQuiz.getId());
 		Long savedQuizId = savedQuiz.getId();
@@ -122,7 +128,7 @@ class QuizApplicationTests {
 		List<Quiz> publishedQuizzes = quizRepository.findByIsPublishedTrue();
 		assertTrue(publishedQuizzes.stream().anyMatch(q -> q.getId().equals(savedQuizId)));
 
-		// 5. Test Cascade Deletion: deleting the root Quiz cascades deletion down to Question and AnswerOption
+		// 5. Test Cascade Deletion
 		quizRepository.delete(savedQuiz);
 
 		assertFalse(quizRepository.findById(savedQuizId).isPresent());
@@ -236,7 +242,8 @@ class QuizApplicationTests {
 	 * - GET /quizzes/{quizId}/questions lists questions for a quiz.
 	 * - GET /quizzes/{quizId}/questions/add displays the add question form.
 	 * - POST /quizzes/{quizId}/questions/add creates a question linked to the quiz.
-	 * - GET /questions/delete/{id} deletes the question and redirects to quiz questions list.
+	 * - GET /questions/delete/{id} deletes the question and redirects to quiz
+	 * questions list.
 	 */
 	@Test
 	void testQuestionEndpoints() throws Exception {
@@ -346,5 +353,54 @@ class QuizApplicationTests {
 
 		assertFalse(answerOptionRepository.findById(optionId).isPresent());
 		assertEquals(0, answerOptionRepository.findByQuestionId(questionId).size());
+	}
+
+	/**
+	 * Tests QuizRestController endpoints for User Story 11 and Exercise 20:
+	 * - GET /api/quizzes returns only published quizzes with HTTP 200 OK and application/json.
+	 * - Excludes unpublished draft quizzes.
+	 * - Verifies CORS headers (Access-Control-Allow-Origin: *).
+	 * - Verifies JSON serialization does not cycle indefinitely.
+	 * - POST /api/quizzes creates a quiz via REST with HTTP 201 Created.
+	 */
+	@Test
+	void testQuizRestControllerEndpoints() throws Exception {
+		// 1. Create a published quiz with child question and answer option
+		Quiz publishedQuiz = new Quiz("Published Microservices", "Spring Cloud architecture", "MS101", true);
+		Question question = new Question("What is service discovery?", "Easy", publishedQuiz);
+		publishedQuiz.addQuestion(question);
+		AnswerOption option = new AnswerOption("Locating microservices dynamically", true, question);
+		question.addAnswerOption(option);
+		quizRepository.save(publishedQuiz);
+
+		// 2. Create an unpublished (draft) quiz
+		Quiz draftQuiz = quizRepository.save(new Quiz("Draft Quiz", "Work in progress", "DR101", false));
+
+		// 3. Test GET /api/quizzes with Origin header for CORS
+		mockMvc.perform(get("/api/quizzes")
+				.header("Origin", "http://localhost:5173"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Access-Control-Allow-Origin", "*"))
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[?(@.name == 'Published Microservices')].isPublished").value(true))
+				.andExpect(jsonPath("$[?(@.name == 'Draft Quiz')]").doesNotExist());
+
+		// 4. Test POST /api/quizzes
+		String quizJson = """
+				{
+					"name": "Cloud Deployment",
+					"courseCode": "CD101",
+					"description": "Docker and Kubernetes CI/CD",
+					"isPublished": true
+				}
+				""";
+
+		mockMvc.perform(post("/api/quizzes")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(quizJson))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.id").exists())
+				.andExpect(jsonPath("$.name").value("Cloud Deployment"))
+				.andExpect(jsonPath("$.courseCode").value("CD101"));
 	}
 }
