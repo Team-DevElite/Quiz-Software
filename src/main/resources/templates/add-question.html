@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Question — Quizzer</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --input-focus: #3b82f6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .form-desc {
+            margin: 0 0 1.5rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: #ffffff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.55rem 1.2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="breadcrumb">
+        <a th:href="@{/quizzes}">Quizzes</a> &rsaquo;
+        <a th:href="@{/quizzes/{quizId}/questions(quizId=${quiz.id})}" th:text="${quiz.name}">Quiz</a> &rsaquo;
+        <span>Add Question</span>
+    </div>
+
+    <div class="card">
+        <h1>Add New Question</h1>
+        <p class="form-desc" th:text="'Add a question to ' + ${quiz.name} + ' (' + ${quiz.courseCode} + '). You can manage answer options after creating the question.'">Add a question to this quiz.</p>
+
+        <form th:action="@{/quizzes/{quizId}/questions/add(quizId=${quiz.id})}" th:object="${question}" method="post">
+            <div class="form-group">
+                <label for="questionText" class="required">Question Prompt</label>
+                <textarea id="questionText" th:field="*{questionText}" required rows="3" placeholder="e.g. What is the primary purpose of the Sprint Retrospective?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="difficulty" class="required">Difficulty</label>
+                <select id="difficulty" th:field="*{difficulty}" required>
+                    <option value="Easy">Easy</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/quizzes/{quizId}/questions(quizId=${quiz.id})}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Question</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+

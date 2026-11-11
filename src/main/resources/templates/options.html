@@ -1,69 +1,151 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Answer Options — Quizzer</title>
     <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #f8fafc;
+            padding: 2rem;
+        }
 
-        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 2rem; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        .btn { padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
-        .btn-primary { background: #2563eb; color: #fff; }
-        .btn-danger { background: #fee2e2; color: #dc2626; }
-        .badge-success { background: #dcfce7; color: #16a34a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
-        .badge-draft { background: #f1f5f9; color: #64748b; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            border: 1px solid transparent;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .badge-draft {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <!-- Back to the list of questions of the quiz this question belongs to -->
-    <p>
-        <a th:href="@{/quizzes/{id}/questions(id=${question.quiz.id})}"
-           style="color: #2563eb; text-decoration: none;">← Back to Questions</a>
-    </p>
+    <div class="container">
+        <p>
+            <a th:if="${question.quiz != null}" th:href="@{/quizzes/{quizId}/questions(quizId=${question.quiz.id})}"
+                style="color: #2563eb; text-decoration: none;">← Back to Questions</a>
+            <a th:unless="${question.quiz != null}" th:href="@{/quizzes}"
+                style="color: #2563eb; text-decoration: none;">← Back to Quizzes</a>
+        </p>
 
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h2>Answer Options</h2>
-                <p style="color: #64748b; margin-top: 0.25rem;" th:text="'Question: ' + ${question.questionText}"></p>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2>Answer Options</h2>
+                    <p style="color: #64748b; margin-top: 0.25rem;" th:text="'Question: ' + ${question.questionText}">
+                    </p>
+                </div>
+                <a th:href="@{/questions/{id}/options/add(id=${question.id})}" class="btn btn-primary">+ Add Answer
+                    Option</a>
             </div>
-            <a th:href="@{/questions/{id}/options/add(id=${question.id})}" class="btn btn-primary">+ Add Answer Option</a>
-        </div>
 
-        <!-- Shown when the question has no answer options yet -->
-        <div th:if="${#lists.isEmpty(options)}" style="text-align: center; padding: 2rem; color: #64748b;">
-            <h3>No answer options found</h3>
-            <p>This question doesn't have any answer options yet.</p>
-        </div>
+            <!-- Shown when the question has no answer options yet -->
+            <div th:if="${#lists.isEmpty(options)}" style="text-align: center; padding: 2rem; color: #64748b;">
+                <p>No answer options have been added to this question yet.</p>
+                <a th:href="@{/questions/{id}/options/add(id=${question.id})}" class="btn btn-primary">+ Add First
+                    Option</a>
+            </div>
 
-        <table th:unless="${#lists.isEmpty(options)}">
-            <thead>
-            <tr>
-                <th>Option Text</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="option : ${options}">
-                <td th:text="${option.optionText}">Option text here</td>
-                <td>
-                    <span th:if="${option.isCorrect}" class="badge-success">Correct</span>
-                    <span th:unless="${option.isCorrect}" class="badge-draft">Incorrect</span>
-                </td>
-                <td>
-                    <a th:href="@{/options/delete/{id}(id=${option.id})}"
-                       class="btn btn-danger"
-                       onclick="return confirm('Delete this answer option?');">Delete</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            <table th:unless="${#lists.isEmpty(options)}">
+                <thead>
+                    <tr>
+                        <th>Option Text</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="option : ${options}">
+                        <td th:text="${option.optionText}">Option text here</td>
+                        <td>
+                            <span th:if="${option.isCorrect}" class="badge-success">Correct</span>
+                            <span th:unless="${option.isCorrect}" class="badge-draft">Incorrect</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <a th:href="@{/options/edit/{id}(id=${option.id})}" class="btn btn-secondary">Edit</a>
+                                <a th:href="@{/options/delete/{id}(id=${option.id})}" class="btn btn-danger"
+                                    onclick="return confirm('Delete this answer option?');">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

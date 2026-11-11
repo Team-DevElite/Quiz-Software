@@ -225,4 +225,121 @@ class QuizApplicationTests {
 		// 3. Verify quiz is removed from database
 		assertFalse(quizRepository.findById(quizId).isPresent());
 	}
+
+	/**
+	 * Tests QuestionController endpoints for User Stories 5, 6, and 7:
+	 * - GET /quizzes/{quizId}/questions lists questions for a quiz.
+	 * - GET /quizzes/{quizId}/questions/add displays the add question form.
+	 * - POST /quizzes/{quizId}/questions/add creates a question linked to the quiz.
+	 * - GET /questions/delete/{id} deletes the question and redirects to quiz questions list.
+	 */
+	@Test
+	void testQuestionEndpoints() throws Exception {
+		// 1. Setup parent Quiz
+		Quiz quiz = quizService.saveQuiz(new Quiz("Cloud Native", "Microservices and K8s", "CN101", true));
+		Long quizId = quiz.getId();
+
+		// 2. Test GET /quizzes/{quizId}/questions
+		mockMvc.perform(get("/quizzes/" + quizId + "/questions"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("questions"))
+				.andExpect(model().attributeExists("quiz", "questions"));
+
+		// 3. Test GET /quizzes/{quizId}/questions/add
+		mockMvc.perform(get("/quizzes/" + quizId + "/questions/add"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("add-question"))
+				.andExpect(model().attributeExists("quiz", "question"));
+
+		// 4. Test POST /quizzes/{quizId}/questions/add
+		mockMvc.perform(post("/quizzes/" + quizId + "/questions/add")
+				.param("questionText", "What is a Pod in Kubernetes?")
+				.param("difficulty", "Normal"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/quizzes/" + quizId + "/questions"));
+
+		List<Question> questions = questionRepository.findByQuizId(quizId);
+		assertEquals(1, questions.size());
+		Question createdQuestion = questions.get(0);
+		assertEquals("What is a Pod in Kubernetes?", createdQuestion.getQuestionText());
+		assertEquals("Normal", createdQuestion.getDifficulty());
+		assertEquals(quizId, createdQuestion.getQuiz().getId());
+
+		// 5. Test GET /questions/delete/{id}
+		Long questionId = createdQuestion.getId();
+		mockMvc.perform(get("/questions/delete/" + questionId))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/quizzes/" + quizId + "/questions"));
+
+		assertFalse(questionRepository.findById(questionId).isPresent());
+		assertEquals(0, questionRepository.findByQuizId(quizId).size());
+	}
+
+	/**
+	 * Tests AnswerOptionController endpoints for User Stories 8, 9, and 10:
+	 * - GET /questions/{questionId}/options lists options.
+	 * - GET /questions/{questionId}/options/add displays the add option form.
+	 * - POST /questions/{questionId}/options/add persists the new option.
+	 * - GET /options/edit/{id} displays the edit option form.
+	 * - POST /options/edit/{id} updates option text and isCorrect status.
+	 * - GET /options/delete/{id} deletes the option.
+	 */
+	@Test
+	void testAnswerOptionEndpoints() throws Exception {
+		// 1. Setup Quiz and Question
+		Quiz quiz = quizService.saveQuiz(new Quiz("Agile Methods", "Scrum and Kanban", "AG101", true));
+		Question question = questionRepository.save(new Question("Who facilitates Scrum events?", "Easy", quiz));
+		Long questionId = question.getId();
+
+		// 2. Test GET /questions/{questionId}/options
+		mockMvc.perform(get("/questions/" + questionId + "/options"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("options"))
+				.andExpect(model().attributeExists("question", "options"));
+
+		// 3. Test GET /questions/{questionId}/options/add
+		mockMvc.perform(get("/questions/" + questionId + "/options/add"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("add-option"))
+				.andExpect(model().attributeExists("question", "option"));
+
+		// 4. Test POST /questions/{questionId}/options/add
+		mockMvc.perform(post("/questions/" + questionId + "/options/add")
+				.param("optionText", "Scrum Master")
+				.param("isCorrect", "true"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/questions/" + questionId + "/options"));
+
+		List<AnswerOption> options = answerOptionRepository.findByQuestionId(questionId);
+		assertEquals(1, options.size());
+		AnswerOption savedOpt = options.get(0);
+		assertEquals("Scrum Master", savedOpt.getOptionText());
+		assertTrue(savedOpt.getIsCorrect());
+
+		// 5. Test GET /options/edit/{id}
+		Long optionId = savedOpt.getId();
+		mockMvc.perform(get("/options/edit/" + optionId))
+				.andExpect(status().isOk())
+				.andExpect(view().name("edit-option"))
+				.andExpect(model().attributeExists("option", "question"));
+
+		// 6. Test POST /options/edit/{id}
+		mockMvc.perform(post("/options/edit/" + optionId)
+				.param("optionText", "The Scrum Master")
+				.param("isCorrect", "true"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/questions/" + questionId + "/options"));
+
+		AnswerOption updatedOpt = answerOptionRepository.findById(optionId).orElseThrow();
+		assertEquals("The Scrum Master", updatedOpt.getOptionText());
+		assertTrue(updatedOpt.getIsCorrect());
+
+		// 7. Test GET /options/delete/{id}
+		mockMvc.perform(get("/options/delete/" + optionId))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/questions/" + questionId + "/options"));
+
+		assertFalse(answerOptionRepository.findById(optionId).isPresent());
+		assertEquals(0, answerOptionRepository.findByQuestionId(questionId).size());
+	}
 }
