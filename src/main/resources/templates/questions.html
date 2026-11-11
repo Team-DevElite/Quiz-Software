@@ -204,7 +204,7 @@
 
         <table th:unless="${#lists.isEmpty(questions)}">
             <thead>
-            <tr><th>#</th><th>Question</th><th>Difficulty</th></tr>
+            <tr><th>#</th><th>Question</th><th>Difficulty</th><th>Actions</th></tr>
             </thead>
             <tbody>
             <tr th:each="question, stat : ${questions}">
@@ -214,6 +214,9 @@
                     <span class="badge"
                           th:classappend="${question.difficulty == 'Easy'} ? 'badge-easy' : (${question.difficulty == 'Hard'} ? 'badge-hard' : 'badge-normal')"
                           th:text="${question.difficulty}">Normal</span>
+                </td>
+                <td>
+                    <a th:href="@{/questions/{id}/options(id=${question.id})}" class="btn btn-secondary btn-sm">Answer Options</a>
                 </td>
             </tr>
             </tbody>
