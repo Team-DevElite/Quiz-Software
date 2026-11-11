@@ -1,54 +1,43 @@
 package com.DevElite.Quiz.web;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.DevElite.Quiz.domain.Quiz;
+import com.DevElite.Quiz.domain.QuestionRepository;
 import com.DevElite.Quiz.service.QuizService;
 
 /**
- * Controller currently managing quiz endpoints at /api/quizzes.
- * 
- * <p>Note: Per Milestone 6 in PLAN.md, this REST functionality will be cleanly
- * migrated to QuizRestController, allowing QuestionController to manage teacher
- * question views (/quizzes/{quizId}/questions).</p>
+ * Controller for the teacher's question pages (User Story 6).
  */
-@RestController
-@RequestMapping("/api/quizzes")
+@Controller
 public class QuestionController {
 
+    private final QuestionRepository questionRepository;
     private final QuizService quizService;
 
-    /**
-     * Constructor injection for QuizService dependency.
-     */
-    public QuestionController(QuizService quizService) {
+    public QuestionController(QuestionRepository questionRepository, QuizService quizService) {
+        this.questionRepository = questionRepository;
         this.quizService = quizService;
     }
 
     /**
-     * POST endpoint to create a new quiz via JSON payload.
-     * 
-     * @param quiz Quiz entity deserialized from request body
-     * @return 201 CREATED status with the saved Quiz
+     * Shows all questions of one quiz so the teacher knows which questions it has.
+     *
+     * @param quizId ID of the quiz
+     * @param model  passes the quiz and its questions to the view
+     * @return the "questions" view; 404 if the quiz does not exist
      */
-    @PostMapping
-    public ResponseEntity<Quiz> addQuiz(@RequestBody Quiz quiz) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(quizService.saveQuiz(quiz));
-    }
-
-    /**
-     * GET endpoint to retrieve all quizzes.
-     * 
-     * @return Iterable collection of all quizzes in database
-     */
-    @GetMapping
-    public Iterable<Quiz> getQuizzes() {
-        return quizService.getAllQuizzes();
+    @GetMapping("/quizzes/{quizId}/questions")
+    public String listQuestions(@PathVariable("quizId") Long quizId, Model model) {
+        Quiz quiz = quizService.getQuizById(quizId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found: " + quizId));
+        model.addAttribute("quiz", quiz);
+        model.addAttribute("questions", questionRepository.findByQuizId(quizId));
+        return "questions";
     }
 }
