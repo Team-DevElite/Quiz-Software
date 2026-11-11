@@ -2,6 +2,8 @@
 
 Quizzer is a full-stack educational quiz platform developed by **Team DevElite**. It enables teachers to author, manage, and publish quizzes with multi-choice questions, and provides students with an interactive client to explore and complete published quizzes.
 
+**Live app:** https://quiz-software-soft-dev-proj.2.rahtiapp.fi/
+
 ---
 
 ## Architecture Overview
