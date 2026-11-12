@@ -2,6 +2,8 @@
 
 Quizzer is an educational quiz platform developed by **Team DevElite** for course SOF005AS3AE. This repository contains the Java backend, a server-rendered teacher dashboard, and a quiz REST API. A React/Vite student dashboard is planned and is not included in this repository yet.
 
+**Live app:** [Quizzer on Rahti](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/)
+
 ## Current features
 
 - Create, list, edit, publish/unpublish, and delete quizzes through the teacher dashboard.
@@ -155,7 +157,7 @@ The Dockerfile uses Java 25 build/runtime images, exposes port 8080, and skips t
 | `DB_USER` | Database username |
 | `DB_PASSWORD` | Database password |
 
-**Deployment preparation remains incomplete:** `pom.xml` does not yet include the PostgreSQL JDBC driver required by this profile. The profile also inherits the enabled H2 console setting from the default configuration. Review these settings before production deployment. Hibernate is configured with `ddl-auto=update`. No production deployment URL is recorded here yet.
+**Deployment preparation remains incomplete:** `pom.xml` does not yet include the PostgreSQL JDBC driver required by this profile. The profile also inherits the enabled H2 console setting from the default configuration. Review these settings before production deployment. Hibernate is configured with `ddl-auto=update`. The deployed app is available at [Quizzer on Rahti](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/).
 
 ## Team and project documentation
 
