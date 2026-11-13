@@ -71,9 +71,9 @@
 ---
 
 ## Milestone 7: Student Dashboard Frontend Application (Exercise 19 & 21)
-- [ ] **Task 7.1**: Initialize a Vite + React student frontend project.
-- [ ] **Task 7.2**: Implement published quiz listing view in React fetching data from `http://localhost:8080/api/quizzes`.
-- [ ] **Task 7.3**: Add error handling, loading states, and basic styling.
+- [x] **Task 7.1**: Initialize a Vite + React student frontend project. *(Completed in `frontend/` directory)*
+- [x] **Task 7.2**: Implement published quiz listing view in React fetching data from `http://localhost:8080/api/quizzes`.
+- [x] **Task 7.3**: Add error handling, loading states, and basic styling.
 
 ---
 
