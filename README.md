@@ -1,18 +1,19 @@
 # Quizzer
 
-Quizzer is an educational quiz platform developed by **Team DevElite** for course SOF005AS3AE. This repository contains the Java backend, a server-rendered teacher dashboard, and a quiz REST API. A React/Vite student dashboard is planned and is not included in this repository yet.
+Quizzer is an educational quiz platform developed by **Team DevElite** for course SOF005AS3AE. This repository contains the Java backend, a server-rendered teacher dashboard, a quiz REST API, and a modern React/Vite student dashboard.
 
-**Live app:** [Quizzer on Rahti](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/)
+- **Teacher Dashboard (Live on Rahti):** [https://quiz-software-soft-dev-proj.2.rahtiapp.fi/](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/)
+- **Student Dashboard (Live on Render):** [https://quizzer-653j.onrender.com/](https://quizzer-653j.onrender.com/)
 
 ## Current features
 
 - Create, list, edit, publish/unpublish, and delete quizzes through the teacher dashboard.
-- View the questions belonging to a quiz.
-- List, add, and delete answer options for existing questions.
-- Create, list, and delete quizzes through the REST API.
+- Manage questions belonging to a quiz (view, add, and cascade delete).
+- Manage answer options for questions (view, add, edit, and delete).
+- Student Dashboard (React + TypeScript + Vite) displaying active, published quizzes with live search and filter.
+- REST API endpoint `GET /api/quizzes` returning only published quizzes with CORS enabled (`@CrossOrigin(origins = "*")`).
+- Automatic database seeder (`CommandLineRunner`) populating realistic demo quizzes (Scrum Framework, Java Fundamentals, DevOps draft) if the repository is empty on startup.
 - Persist quizzes, questions, and answer options with Spring Data JPA. Deleting a quiz cascades to its questions and answer options.
-
-Question creation/deletion pages, answer option editing, the student frontend, and demo data seeding are still pending. The application starts with an empty in-memory database.
 
 ## Tech stack and structure
 
@@ -68,7 +69,20 @@ On Windows PowerShell:
 | Teacher dashboard | http://localhost:8080/ |
 | Quiz list | http://localhost:8080/quizzes |
 | REST API | http://localhost:8080/api/quizzes |
+| Student dashboard | http://localhost:5173/ |
 | H2 console | http://localhost:8080/h2-console |
+
+### Run the Student Frontend locally
+
+To run the React/Vite student dashboard:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at [http://localhost:5173/](http://localhost:5173/) and connects to the backend at `http://localhost:8080`.
 
 Use these credentials in the H2 console:
 
@@ -95,25 +109,16 @@ Local data is lost when the application stops. To use another HTTP port, run `./
 
 | Method | Path | Behavior |
 |---|---|---|
-| GET | `/api/quizzes` | Return all quizzes, including unpublished quizzes |
-| POST | `/api/quizzes` | Save a quiz and return it with HTTP 201 |
-| DELETE | `/api/quizzes/{id}` | Delete a quiz; HTTP 204 on success or 404 if missing |
+| GET | `/api/quizzes` | Return only published quizzes (CORS enabled: `@CrossOrigin(origins = "*")`) |
+| POST | `/api/quizzes` | (Temporarily commented out) Save a quiz and return it with HTTP 201 |
 
-Create a quiz from a macOS/Linux terminal:
-
-```bash
-curl -X POST http://localhost:8080/api/quizzes \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"Java Fundamentals","description":"Review Java basics","courseCode":"JAVA101","isPublished":false}'
-```
-
-List quizzes:
+List published quizzes:
 
 ```bash
 curl http://localhost:8080/api/quizzes
 ```
 
-Published-only filtering and cross-origin access for the planned student frontend are not wired into the REST controller yet. Setting a quiz's publication flag currently does not hide it from `GET /api/quizzes`.
+`GET /api/quizzes` filters out unpublished draft quizzes, exposing only published assessments to the student dashboard. Cross-origin requests from the React frontend are allowed.
 
 ## Tests and packaging
 

@@ -78,7 +78,6 @@
 ---
 
 ## Milestone 8: Documentation, Verification, Seed Data & Release (Exercises 22, 23, 24, 25)
-- [ ] **Task 8.1**: Create database seeder (`CommandLineRunner`) with realistic demo data (Scrum framework, Java fundamentals quizzes with questions and answers).
-- [x] **Task 8.2**: Verify and refine Developer Guide in `README.md` (exact command line instructions, port information, H2 credentials). Updated to reflect current routes, feature status, build version, and container/Rahti configuration. Documentation checked against source; `git diff --check` passed. `./mvnw test` attempted but blocked by Mockito MockMaker initialization on the local Java 26 runtime.
-- [ ] **Task 8.3**: Document Rahti production deployment steps (PostgreSQL setup, application properties, container configuration).
-- [ ] **Task 8.4**: Prepare GitHub Release notes (`sprint1` tag) and Sprint Review presentation demo guide.
+- [x] **Task 8.1**: Create database seeder (`CommandLineRunner`) with realistic demo data (Scrum framework, Java fundamentals quizzes with questions and answers) with empty repository check. *(Completed in `QuizApplication.java`)*
+- [x] **Task 8.2**: Verify and refine Developer Guide in `README.md` (exact command line instructions, port information, H2 credentials). Updated to reflect current routes, feature status, build version, and container/Rahti configuration. Documentation checked against source; `git diff --check` passed.
+- [x] **Task 8.4**: Prepare GitHub Release notes (`sprint1` tag) and Sprint Review presentation demo guide. *(Completed in `RELEASE_NOTES.md`)*
