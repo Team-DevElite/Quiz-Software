@@ -22,23 +22,39 @@ Quizzer is an educational quiz platform developed by **Team DevElite** for cours
 | Language | Java 21 (Maven compilation target) |
 | Framework | Spring Boot 3.4.13 |
 | Teacher dashboard | Spring MVC and Thymeleaf |
+| Student dashboard | React 19, TypeScript, and Vite |
 | Persistence | Spring Data JPA and Hibernate |
 | Local database | H2, in memory |
-| Build | Maven Wrapper |
+| Build | Maven Wrapper & npm |
 | Tests | JUnit 5, Spring Boot Test, and MockMvc |
 | Container | Multi-stage Docker build using Java 25 images |
 
 ```text
-src/main/java/com/DevElite/Quiz/
-  domain/       JPA entities and repositories
-  service/      Quiz and answer option business logic
-  web/          MVC and REST controllers
-src/main/resources/
-  templates/    Thymeleaf teacher dashboard
-  application.properties
-  application-rahti.properties
-src/test/java/com/DevElite/Quiz/
-  QuizApplicationTests.java
+Quiz-Software/
+├── src/
+│   ├── main/
+│   │   ├── java/com/DevElite/Quiz/
+│   │   │   ├── domain/                       # JPA entities and repositories
+│   │   │   ├── service/                      # Quiz and answer option business logic
+│   │   │   ├── web/                          # MVC and REST controllers
+│   │   │   └── QuizApplication.java          # Spring Boot entry point & database seeder
+│   │   └── resources/
+│   │       ├── templates/                    # Thymeleaf teacher dashboard templates
+│   │       ├── application.properties        # Local development config (in-memory H2)
+│   │       └── application-rahti.properties  # Rahti cloud deployment profile (PostgreSQL)
+│   └── test/
+│       └── java/com/DevElite/Quiz/
+│           └── QuizApplicationTests.java     # MockMvc and JPA integration tests
+├── frontend/                                 # Student dashboard (React + TypeScript + Vite)
+│   ├── src/
+│   │   ├── components/                       # React components (QuizCard, QuizList)
+│   │   ├── App.tsx                           # Student view with live search & filter
+│   │   ├── types.ts                          # Quiz and Question TypeScript models
+│   │   └── main.tsx                          # React DOM application entry point
+│   ├── package.json                          # Frontend dependencies and scripts
+│   └── vite.config.ts                        # Vite build configuration
+├── Dockerfile                                # Multi-stage container build (Java 25)
+└── pom.xml                                   # Maven project build & dependencies
 ```
 
 The domain hierarchy is `Quiz → Question → AnswerOption`. MVC controllers render HTML; the REST controller returns JSON. The entity collections for questions and answer options use `@JsonIgnore`, so quiz JSON does not include nested questions or answer options.
