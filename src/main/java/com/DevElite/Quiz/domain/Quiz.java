@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 /**
@@ -45,6 +47,11 @@ public class Quiz {
 
     /** Date the quiz was added, initialized to current date upon creation. */
     private LocalDate createdAt = LocalDate.now();
+
+    /** Optional category; no cascading persistence or deletion to the category. */
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     /**
      * Questions belonging to this quiz.
@@ -131,6 +138,19 @@ public class Quiz {
     }
 
     // Getters and Setters
+
+    /** @return assigned category, or null for an uncategorized quiz */
+    public Category getCategory() {
+        return category;
+    }
+
+    /**
+     * Sets the owning side of the category relationship.
+     * @param category category to assign, or null to detach the quiz
+     */
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public Long getId() {
         return id;
