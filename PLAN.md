@@ -11,7 +11,7 @@
 
 ---
 
-## Sprint 1 Overview
+## Sprint 1 Overview (Completed)
 - **Deadline**: Tuesday 17.11. at 23:59
 - **Goal**: Deliver full Teacher Dashboard (CRUD for Quizzes, Questions, and Answer Options), Student Dashboard (React SPA + REST API), and prepare for Rahti deployment & Sprint Review.
 
@@ -81,3 +81,62 @@
 - [x] **Task 8.1**: Create database seeder (`CommandLineRunner`) with realistic demo data (Scrum framework, Java fundamentals quizzes with questions and answers) with empty repository check. *(Completed in `QuizApplication.java`)*
 - [x] **Task 8.2**: Verify and refine Developer Guide in `README.md` (exact command line instructions, port information, H2 credentials). Updated to reflect current routes, feature status, build version, and container/Rahti configuration. Documentation checked against source; `git diff --check` passed.
 - [x] **Task 8.4**: Prepare GitHub Release notes (`sprint1` tag) and Sprint Review presentation demo guide. *(Completed in `RELEASE_NOTES.md`)*
+
+---
+
+## Sprint 2 Overview
+- **Deadline**: Tuesday 1.12. at 23:59
+- **Goal**: Deliver Teacher Category Management, full Student REST API with DTO validation and Swagger/OpenAPI documentation, multi-page Student Dashboard (quiz taking with feedback, results summary, category browsing), updated documentation (`Data model`, `REST API`, `Developer guide`, `Retrospectives`), and Sprint 2 production deployment & release (`sprint2`).
+
+---
+
+## Milestone 9: Sprint 2 Setup, Retrospective & Backend Prerequisites (Ex 1–4, 9)
+- [ ] **Task 9.1** *(Ex 1–2)*: Conduct Sprint 1 Mad/Sad/Glad Retrospective on Flinga, rotate Scrum Master, and add `## Retrospectives` with the Flinga link to `README.md`.
+- [ ] **Task 9.2** *(Ex 3–4)*: Close Sprint 1 GitHub issues/stories, create the `Sprint 2` milestone and `user story` / `backend` / `frontend` labels, and create Sprint 2 backlog issues.
+- [ ] **Task 9.3**: Add `spring-boot-starter-validation` to `pom.xml` and set `server.error.include-message=always` in `application.properties` and `application-rahti.properties`.
+- [ ] **Task 9.4** *(Ex 9)*: Add `## Data model` (Mermaid `erDiagram` + entity/attribute/relationship prose) to `README.md` and keep it updated as new entities are added.
+
+---
+
+## Milestone 10: Teacher Dashboard — Category Management (S2-US1, S2-US2, S2-US3, S2-US4 / Ex 5–8)
+- [ ] **Task 10.1** *(Ex 5)*: Create `Category` JPA entity (`id`, `name`, `description`, `@JsonIgnore @OneToMany quizzes`), `CategoryRepository`, and `CategoryService`.
+- [ ] **Task 10.2** *(Ex 5)*: Create `CategoryController` with `GET /categories/add` and `POST /categories/add`, `add-category.html`, update `QuizApplication.java` seeder with categories, and add integration tests.
+- [ ] **Task 10.3** *(Ex 6)*: Implement `GET /categories` in `CategoryController`, create `categories.html`, add Quizzes/Categories navigation links in `quizzes.html` and `categories.html`, and add `MockMvc` tests.
+- [ ] **Task 10.4** *(Ex 7)*: Add nullable `@ManyToOne Category category` to `Quiz`, update `QuizService.updateQuiz()` to persist category changes, expose `categories` in `QuizController` add/edit forms, add `<select>` dropdown in `add-quiz.html` and `edit-quiz.html`, show Category column in `quizzes.html`, link seeded quizzes to categories, and add integration tests.
+- [ ] **Task 10.5** *(Ex 8)*: Add `findByCategoryId` to `QuizRepository`, implement `@Transactional deleteCategory` detaching quizzes (`quiz.setCategory(null)`) before deletion, add `GET /categories/delete/{id}` in `CategoryController`, add Delete button with confirmation in `categories.html`, and add tests verifying quizzes survive category deletion.
+
+---
+
+## Milestone 11: Student REST API — Quizzes, Questions, Answers & Results (Ex 10–13)
+- [ ] **Task 11.1** *(Ex 10)*: Implement `GET /api/quizzes/{id}` in `QuizRestController` returning `404 Not Found` (`ResponseStatusException`) when quiz ID does not exist + `MockMvc` tests.
+- [ ] **Task 11.2** *(Ex 11)*: Implement `GET /api/quizzes/{id}/questions` returning questions with nested `answerOptions` (using `@JsonManagedReference`/`@JsonBackReference` or DTOs) sorted `Easy` → `Normal` → `Hard`, returning `404 Not Found` if quiz does not exist + `MockMvc` tests.
+- [ ] **Task 11.3** *(Ex 12)*: Create `Answer` JPA entity (`@ManyToOne AnswerOption` with `@OnDelete(CASCADE)`), `AnswerRepository`, `CreateAnswerDto` (`@NotNull answerOptionId`), `AnswerResponseDto`, and `AnswerRestController` (`POST /api/answers`) handling null `answerOptionId` (`400`), nonexistent `answerOptionId` (`404`), and unpublished quiz (`400`/`403`) + tests.
+- [ ] **Task 11.4** *(Ex 13)*: Create `QuestionResultDto` (`questionId`, `questionText`, `questionDifficulty`, `totalAnswers`, `correctAnswers`, `wrongAnswers`), add aggregation logic in service/repository (including 0-answer questions), and implement `GET /api/quizzes/{id}/results` (`404 Not Found` if quiz missing) + `MockMvc` tests.
+
+---
+
+## Milestone 12: Student REST API — Categories & Swagger Documentation (Ex 14–17)
+- [ ] **Task 12.1** *(Ex 14–15)*: Create `CategoryRestController` (`@RequestMapping("/api/categories")`, `@CrossOrigin(origins = "*")`) with `GET /api/categories` and `GET /api/categories/{id}` (`404 Not Found` if missing) + `MockMvc` tests.
+- [ ] **Task 12.2** *(Ex 16)*: Add `findByCategoryIdAndIsPublishedTrue(Long categoryId)` to `QuizRepository` and implement `GET /api/categories/{id}/quizzes` returning only published quizzes of the category (`404 Not Found` if category missing) + `MockMvc` tests.
+- [ ] **Task 12.3** *(Ex 17)*: Add `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15` to `pom.xml`, annotate all REST controllers/methods with `@Tag`, `@Operation`, and `@ApiResponses`/`@ApiResponse`, test all endpoints & error cases in `/swagger-ui/index.html`, and add the Rahti Swagger link under `## REST API` in `README.md`.
+
+---
+
+## Milestone 13: Student Frontend — Navigation, Quizzes, Answering & Results (S2-US5, S2-US6, S2-US7, S2-US8 / Ex 18–21)
+- [ ] **Task 13.1** *(Ex 18)*: Install `react-router-dom`, extract API service modules (`frontend/src/services/quizService.ts`, `categoryService.ts`), add top navigation menu (`Quizzes`, `Categories`) in `App.tsx`, update `types.ts` and `QuizCard.tsx` to display `category`, turn quiz name into a link to `/quizzes/:id` (removing placeholder `alert()`), and add a Results link (`/quizzes/:id/results`) next to each quiz.
+- [ ] **Task 13.2** *(Ex 19)*: Create `QuizPage.tsx` (`/quizzes/:id`) showing quiz name, description, and questions ordered `Easy` → `Normal` → `Hard` with their answer options, loading/error/404/empty states, and back link.
+- [ ] **Task 13.3** *(Ex 20)*: Add per-question radio selection and Submit button in `QuizPage.tsx` calling `POST /api/answers`, showing immediate feedback dialog (*"That is correct, good job!"* / *"That is not correct, try again"*).
+- [ ] **Task 13.4** *(Ex 21)*: Create `QuizResultsPage.tsx` (`/quizzes/:id/results`) displaying quiz total questions and total answers, and per-question text, difficulty, total answers, correct percentage (guarding `0` answers), correct count, and wrong count.
+
+---
+
+## Milestone 14: Student Frontend — Category Browsing (S2-US9, S2-US10 / Ex 22–23)
+- [ ] **Task 14.1** *(Ex 22)*: Create `CategoryListPage.tsx` (`/categories`) listing all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
+- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` (`/categories/:id/quizzes`) displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links).
+
+---
+
+## Milestone 15: Production Deployment, Developer Guide, Release & Sprint Review (Ex 24–27)
+- [ ] **Task 15.1** *(Ex 24)*: Deploy Sprint 2 backend to Rahti and frontend to Render (with SPA rewrite `/* -> /index.html`), test answering quizzes & viewing results in production, and verify live URL in `README.md`.
+- [ ] **Task 15.2** *(Ex 25)*: Restructure `README.md` `## Developer guide` into `### Backend` and `### Frontend` (exact directory, install/run commands, backend/frontend tech stacks, H2 dev vs. PostgreSQL prod DBs) and remove outdated PostgreSQL driver note.
+- [ ] **Task 15.3** *(Ex 26–27)*: Push all work to `main`, create GitHub Release tag `sprint2` titled `"Sprint 2"`, verify realistic demo data, and prepare Sprint Review presentation before Tue 1.12. 23:59.
