@@ -14,6 +14,8 @@ Quizzer is an educational quiz management and delivery platform built for univer
 
 ## 2. Domain Data Contracts & ER Model
 
+**Implementation status:** Category entity/repository persistence and the nullable `Quiz.category` mapping are implemented. Category services, teacher category forms/assignment, safe deletion workflow, and student category endpoints below remain planned Sprint 2 work.
+
 ```mermaid
 erDiagram
     CATEGORY ||--o{ QUIZ : "categorizes (1:N)"
