@@ -99,10 +99,11 @@
 ---
 
 ## Milestone 10: Teacher Dashboard — Category Management (S2-US1, S2-US2, S2-US3, S2-US4 / Ex 5–8)
-- [ ] **Task 10.1** *(Ex 5)*: Create `Category` JPA entity (`id`, `name`, `description`, `@JsonIgnore @OneToMany quizzes`), `CategoryRepository`, and `CategoryService`.
+- [x] **Task 10.1a** *(Ex 5, user-requested entity/repository scope)*: Create `Category` JPA entity (`id`, `name`, `description`, `@JsonIgnore @OneToMany quizzes`) and `CategoryRepository`, including the nullable owning `Quiz.category` mapping required by `mappedBy`. Add repository and serialization verification.
+- [ ] **Task 10.1b** *(Ex 5)*: Create `CategoryService`.
 - [ ] **Task 10.2** *(Ex 5)*: Create `CategoryController` with `GET /categories/add` and `POST /categories/add`, `add-category.html`, update `QuizApplication.java` seeder with categories, and add integration tests.
 - [ ] **Task 10.3** *(Ex 6)*: Implement `GET /categories` in `CategoryController`, create `categories.html`, add Quizzes/Categories navigation links in `quizzes.html` and `categories.html`, and add `MockMvc` tests.
-- [ ] **Task 10.4** *(Ex 7)*: Add nullable `@ManyToOne Category category` to `Quiz`, update `QuizService.updateQuiz()` to persist category changes, expose `categories` in `QuizController` add/edit forms, add `<select>` dropdown in `add-quiz.html` and `edit-quiz.html`, show Category column in `quizzes.html`, link seeded quizzes to categories, and add integration tests.
+- [ ] **Task 10.4** *(Ex 7)*: Nullable `@ManyToOne Category category` mapping completed in Task 10.1a; update `QuizService.updateQuiz()` to persist category changes, expose `categories` in `QuizController` add/edit forms, add `<select>` dropdown in `add-quiz.html` and `edit-quiz.html`, show Category column in `quizzes.html`, link seeded quizzes to categories, and add integration tests.
 - [ ] **Task 10.5** *(Ex 8)*: Add `findByCategoryId` to `QuizRepository`, implement `@Transactional deleteCategory` detaching quizzes (`quiz.setCategory(null)`) before deletion, add `GET /categories/delete/{id}` in `CategoryController`, add Delete button with confirmation in `categories.html`, and add tests verifying quizzes survive category deletion.
 
 ---
