@@ -57,7 +57,9 @@ Quiz-Software/
 └── pom.xml                                   # Maven project build & dependencies
 ```
 
-The domain hierarchy is `Quiz → Question → AnswerOption`. MVC controllers render HTML; the REST controller returns JSON. The entity collections for questions and answer options use `@JsonIgnore`, so quiz JSON does not include nested questions or answer options.
+The domain hierarchy is `Category → Quiz → Question → AnswerOption`, with an optional category per quiz. MVC controllers render HTML; the REST controller returns JSON. Category quizzes, quiz questions, and question answer options use `@JsonIgnore` to prevent recursive JSON.
+
+Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Category services, web forms, and REST endpoints remain planned Sprint 2 work.
 
 ## Run locally
 
