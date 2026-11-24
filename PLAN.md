@@ -118,7 +118,7 @@
 ---
 
 ## Milestone 12: Student REST API — Categories & Swagger Documentation (Ex 14–17)
-- [ ] **Task 12.1** *(Ex 14–15)*: Create `CategoryRestController` (`@RequestMapping("/api/categories")`, `@CrossOrigin(origins = "*")`) with `GET /api/categories` and `GET /api/categories/{id}` (`404 Not Found` if missing) + `MockMvc` tests.
+- [x] **Task 12.1** *(Ex 14–15, issue #45)*: Create `CategoryRestController` (`@RequestMapping("/api/categories")`, `@CrossOrigin(origins = "*")`) with `GET /api/categories` and `GET /api/categories/{id}` (`404 Not Found` if missing) + `MockMvc` tests.
 - [ ] **Task 12.2** *(Ex 16)*: Add `findByCategoryIdAndIsPublishedTrue(Long categoryId)` to `QuizRepository` and implement `GET /api/categories/{id}/quizzes` returning only published quizzes of the category (`404 Not Found` if category missing) + `MockMvc` tests.
 - [ ] **Task 12.3** *(Ex 17)*: Add `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15` to `pom.xml`, annotate all REST controllers/methods with `@Tag`, `@Operation`, and `@ApiResponses`/`@ApiResponse`, test all endpoints & error cases in `/swagger-ui/index.html`, and add the Rahti Swagger link under `## REST API` in `README.md`.
 

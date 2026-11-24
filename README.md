@@ -61,7 +61,7 @@ Quiz-Software/
 
 The domain hierarchy is `Category → Quiz → Question → AnswerOption`, with an optional category per quiz. MVC controllers render HTML; the REST controller returns JSON. Category quizzes, quiz questions, and question answer options use `@JsonIgnore` to prevent recursive JSON.
 
-Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Category services, web forms, and REST endpoints remain planned Sprint 2 work.
+Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories through `CategoryRestController` (`/api/categories`). Category services and teacher web forms remain planned Sprint 2 work.
 
 ## Run locally
 
@@ -131,6 +131,8 @@ Local data is lost when the application stops. To use another HTTP port, run `./
 |---|---|---|
 | GET | `/api/quizzes` | Return only published quizzes (CORS enabled: `@CrossOrigin(origins = "*")`) |
 | POST | `/api/quizzes` | (Temporarily commented out) Save a quiz and return it with HTTP 201 |
+| GET | `/api/categories` | Return all categories as `{id, name, description}` (CORS enabled) |
+| GET | `/api/categories/{id}` | Return one category, or `404 Not Found` |
 
 List published quizzes:
 
