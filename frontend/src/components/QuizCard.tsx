@@ -19,7 +19,19 @@ export function QuizCard({ quiz, onTakeQuiz }: QuizCardProps) {
   return (
     <article className="quiz-card" data-testid={`quiz-card-${quiz.id}`}>
       <div className="quiz-card-header">
-        <span className="course-badge">{course}</span>
+        <div className="quiz-card-badges">
+          <span className="course-badge">{course}</span>
+          {quiz.category ? (
+            <span
+              className="category-badge"
+              title={quiz.category.description || quiz.category.name}
+            >
+              {quiz.category.name}
+            </span>
+          ) : (
+            <span className="category-badge uncategorized">Uncategorized</span>
+          )}
+        </div>
         <span className="status-badge published">Published</span>
       </div>
 

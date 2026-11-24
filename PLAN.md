@@ -126,6 +126,7 @@
 
 ## Milestone 13: Student Frontend — Navigation, Quizzes, Answering & Results (S2-US5, S2-US6, S2-US7, S2-US8 / Ex 18–21)
 - [ ] **Task 13.1** *(Ex 18)*: Install `react-router-dom`, extract API service modules (`frontend/src/services/quizService.ts`, `categoryService.ts`), add top navigation menu (`Quizzes`, `Categories`) in `App.tsx`, update `types.ts` and `QuizCard.tsx` to display `category`, turn quiz name into a link to `/quizzes/:id` (removing placeholder `alert()`), and add a Results link (`/quizzes/:id/results`) next to each quiz.
+  - [x] *Partial (issues #38/#39, story #21)*: `GET /api/quizzes` category serialization verified by `QuizRestCategoryTests`; `Category` type added to `types.ts` and `QuizCard.tsx` shows a category badge (or "Uncategorized").
 - [ ] **Task 13.2** *(Ex 19)*: Create `QuizPage.tsx` (`/quizzes/:id`) showing quiz name, description, and questions ordered `Easy` → `Normal` → `Hard` with their answer options, loading/error/404/empty states, and back link.
 - [ ] **Task 13.3** *(Ex 20)*: Add per-question radio selection and Submit button in `QuizPage.tsx` calling `POST /api/answers`, showing immediate feedback dialog (*"That is correct, good job!"* / *"That is not correct, try again"*).
 - [ ] **Task 13.4** *(Ex 21)*: Create `QuizResultsPage.tsx` (`/quizzes/:id/results`) displaying quiz total questions and total answers, and per-question text, difficulty, total answers, correct percentage (guarding `0` answers), correct count, and wrong count.
