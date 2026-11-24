@@ -74,6 +74,7 @@
 - [x] **Task 7.1**: Initialize a Vite + React student frontend project. *(Completed in `frontend/` directory)*
 - [x] **Task 7.2**: Implement published quiz listing view in React fetching data from `http://localhost:8080/api/quizzes`.
 - [x] **Task 7.3**: Add error handling, loading states, and basic styling.
+- [x] **Task 7.4**: Fix frontend CI `react-hooks/set-state-in-effect` failure: reset loading/error in refresh button handlers, fetch asynchronously in the effect, and abort stale requests during cleanup. Verified with `npm run lint` and `npm run build`.
 
 ---
 
