@@ -124,9 +124,23 @@
 
 ---
 
+## ♻️ Shared Student Frontend Foundation — reuse, don't rebuild (done in issues #45–#47)
+The routing and plumbing below already exist on `develop`. Pages for stories #22, #23, #24 and #26 should plug into them instead of re-creating them:
+- **Routing** (`react-router-dom` installed): routes live in `frontend/src/App.tsx` inside the `<Layout>` route. Add a page by adding one `<Route>` there (`quizzes/:id`, `quizzes/:id/results`, `categories/:id/quizzes`); unknown paths fall through to `NotFoundPage`.
+- **Navigation menu**: `components/Layout.tsx` renders the header, the `Quizzes` / `Categories` menu (`NavLink`), the routed page and the footer. Do not add another header or menu per page.
+- **API calls**: `services/api.ts` (`BACKEND_URL`, `getJson`, `ApiError` with `.status` for 404 handling). Add endpoint functions to `services/quizService.ts` / `services/categoryService.ts` (`getCategory(id)` already exists for the category quizzes page).
+- **Loading state**: `hooks/useApiData(loader)` returns `{ data, loading, error, reload }` and aborts stale requests. For route params wrap the loader: `useCallback((s) => getX(id, s), [id])`.
+- **UI states**: `components/PageStates.tsx` (`LoadingState`, `ErrorState`, `EmptyState`) and the `.page-header` / `.page-title` CSS classes.
+- **Types**: `Category` and `Quiz.category` are in `types.ts`.
+- **Deployment note** (Task 15.1): client-side routes need the Render SPA rewrite `/* -> /index.html`.
+
+---
+
 ## Milestone 13: Student Frontend — Navigation, Quizzes, Answering & Results (S2-US5, S2-US6, S2-US7, S2-US8 / Ex 18–21)
 - [ ] **Task 13.1** *(Ex 18)*: Install `react-router-dom`, extract API service modules (`frontend/src/services/quizService.ts`, `categoryService.ts`), add top navigation menu (`Quizzes`, `Categories`) in `App.tsx`, update `types.ts` and `QuizCard.tsx` to display `category`, turn quiz name into a link to `/quizzes/:id` (removing placeholder `alert()`), and add a Results link (`/quizzes/:id/results`) next to each quiz.
   - [x] *Partial (issues #38/#39, story #21)*: `GET /api/quizzes` category serialization verified by `QuizRestCategoryTests`; `Category` type added to `types.ts` and `QuizCard.tsx` shows a category badge (or "Uncategorized").
+  - [x] *Partial (issues #46/#47, story #25)*: `react-router-dom` installed; `services/` layer (`api.ts`, `quizService.ts`, `categoryService.ts`) extracted; `Quizzes` / `Categories` navigation menu in `components/Layout.tsx`; quiz list moved to `pages/QuizListPage.tsx`. See *Shared Student Frontend Foundation* above.
+  - [ ] *Remaining (stories #22–#24)*: turn quiz name / "Take Quiz" into a link to `/quizzes/:id` (removing the placeholder `alert()` in `QuizCard.tsx`) and add a Results link (`/quizzes/:id/results`).
 - [ ] **Task 13.2** *(Ex 19)*: Create `QuizPage.tsx` (`/quizzes/:id`) showing quiz name, description, and questions ordered `Easy` → `Normal` → `Hard` with their answer options, loading/error/404/empty states, and back link.
 - [ ] **Task 13.3** *(Ex 20)*: Add per-question radio selection and Submit button in `QuizPage.tsx` calling `POST /api/answers`, showing immediate feedback dialog (*"That is correct, good job!"* / *"That is not correct, try again"*).
 - [ ] **Task 13.4** *(Ex 21)*: Create `QuizResultsPage.tsx` (`/quizzes/:id/results`) displaying quiz total questions and total answers, and per-question text, difficulty, total answers, correct percentage (guarding `0` answers), correct count, and wrong count.
@@ -134,8 +148,8 @@
 ---
 
 ## Milestone 14: Student Frontend — Category Browsing (S2-US9, S2-US10 / Ex 22–23)
-- [ ] **Task 14.1** *(Ex 22)*: Create `CategoryListPage.tsx` (`/categories`) listing all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
-- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` (`/categories/:id/quizzes`) displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links).
+- [x] **Task 14.1** *(Ex 22, issues #46/#47)*: Create `CategoryListPage.tsx` (`/categories`) listing all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
+- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` (`/categories/:id/quizzes`) displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links). Category name links on `/categories` already point to `/categories/:id/quizzes` (they show `NotFoundPage` until this route is added); use `getCategory(id)` from `categoryService.ts` for the header and add `getCategoryQuizzes(id)` next to it once `GET /api/categories/{id}/quizzes` (Task 12.2) exists.
 
 ---
 

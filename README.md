@@ -49,9 +49,12 @@ Quiz-Software/
 │           └── QuizApplicationTests.java     # MockMvc and JPA integration tests
 ├── frontend/                                 # Student dashboard (React + TypeScript + Vite)
 │   ├── src/
-│   │   ├── components/                       # React components (QuizCard, QuizList)
-│   │   ├── App.tsx                           # Student view with live search & filter
-│   │   ├── types.ts                          # Quiz and Question TypeScript models
+│   │   ├── components/                       # Shared UI: Layout (header + nav), PageStates, QuizCard, QuizList
+│   │   ├── pages/                            # Routed pages (QuizListPage, CategoryListPage, NotFoundPage)
+│   │   ├── services/                         # Backend calls: api.ts (base URL, errors), quizService, categoryService
+│   │   ├── hooks/                            # useApiData: loading/error/data/reload for a page
+│   │   ├── App.tsx                           # react-router-dom route table
+│   │   ├── types.ts                          # TypeScript models matching the REST JSON (Quiz, Category)
 │   │   └── main.tsx                          # React DOM application entry point
 │   ├── package.json                          # Frontend dependencies and scripts
 │   └── vite.config.ts                        # Vite build configuration
@@ -102,7 +105,7 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at [http://localhost:5173/](http://localhost:5173/) and connects to the backend at `http://localhost:8080`.
+The frontend will be available at [http://localhost:5173/](http://localhost:5173/) and connects to the backend at `http://localhost:8080`. Pages: `/` (published quizzes) and `/categories` (all categories). Because the dashboard uses client-side routing, a static host must rewrite unknown paths to `/index.html` (on Render: rewrite `/*` → `/index.html`).
 
 Use these credentials in the H2 console:
 
