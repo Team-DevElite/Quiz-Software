@@ -136,7 +136,7 @@ List published quizzes:
 curl http://localhost:8080/api/quizzes
 ```
 
-`GET /api/quizzes` filters out unpublished draft quizzes, exposing only published assessments to the student dashboard. Cross-origin requests from the React frontend are allowed.
+`GET /api/quizzes` filters out unpublished draft quizzes, exposing only published assessments to the student dashboard. Cross-origin requests from the React frontend are allowed. Each quiz includes its `category` as a flat object (`id`, `name`, `description`) or `null` when uncategorized; the student quiz cards show it as a badge.
 
 ## Tests and packaging
 
