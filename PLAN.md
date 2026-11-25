@@ -132,7 +132,7 @@ The routing and plumbing below already exist on `develop`. Pages for stories #22
 - **Routing** (`react-router-dom` installed): routes live in `frontend/src/App.tsx` inside the `<Layout>` route. Add a page by adding one `<Route>` there (`quizzes/:id`, `quizzes/:id/results`, `categories/:id/quizzes`); unknown paths fall through to `NotFoundPage`.
 - **Navigation menu**: `components/Layout.tsx` renders the header, the `Quizzes` / `Categories` menu (`NavLink`), the routed page and the footer. Do not add another header or menu per page.
 - **API calls**: `services/api.ts` (`BACKEND_URL`, `getJson`, `ApiError` with `.status` for 404 handling). Add endpoint functions to `services/quizService.ts` / `services/categoryService.ts` (`getCategory(id)` already exists for the category quizzes page).
-- **Loading state**: `hooks/useApiData(loader)` returns `{ data, loading, error, reload }` and aborts stale requests. For route params wrap the loader: `useCallback((s) => getX(id, s), [id])`.
+- **Loading state**: pages use `useQuery` from `@tanstack/react-query` (shared `QueryClient` configured in `main.tsx`). Include any route params in `queryKey` and forward the injected `signal`: `queryFn: ({ signal }) => getX(id, signal)`.
 - **UI states**: `components/PageStates.tsx` (`LoadingState`, `ErrorState`, `EmptyState`) and the `.page-header` / `.page-title` CSS classes.
 - **Types**: `Category` and `Quiz.category` are in `types.ts`.
 - **Deployment note** (Task 15.1): client-side routes need the Render SPA rewrite `/* -> /index.html`.
