@@ -62,7 +62,7 @@ Quiz-Software/
 
 The domain hierarchy is `Category → Quiz → Question → AnswerOption`, with an optional category per quiz. MVC controllers render HTML; the REST controller returns JSON. Category quizzes, quiz questions, and question answer options use `@JsonIgnore` to prevent recursive JSON.
 
-Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories through `CategoryRestController` (`/api/categories`). Category services and teacher web forms remain planned Sprint 2 work.
+Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories through `CategoryRestController` (`/api/categories`). CategoryService provides validated persistence and reads. Teachers can create categories at `/categories/add` (required name, optional description, maximum 255 characters each) and browse a basic list at `/categories`. Invalid submissions preserve entered values and show field errors; successful creation redirects to the list. Demo categories (Agile, Programming, Cloud & DevOps) are seeded only when the category repository is empty, independently of existing quizzes. Category assignment and deletion remain planned Sprint 2 work.
 
 ## Run locally
 
@@ -114,6 +114,8 @@ Use these credentials in the H2 console:
 Local data is lost when the application stops. To use another HTTP port, run `./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8081` and adjust the URLs accordingly.
 
 ## Teacher dashboard routes
+
+Category creation: `GET /categories/add` displays the form; `POST /categories/add` validates and saves. `GET /categories` displays the basic category list.
 
 | Method | Path | Purpose |
 |---|---|---|
