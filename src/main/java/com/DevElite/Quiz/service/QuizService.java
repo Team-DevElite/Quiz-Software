@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.DevElite.Quiz.domain.Category;
+import com.DevElite.Quiz.domain.CategoryRepository;
 
 import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
@@ -16,14 +19,17 @@ import com.DevElite.Quiz.domain.QuizRepository;
 public class QuizService {
 
     private final QuizRepository quizRepository;
+    private final CategoryRepository categoryRepository;
 
     /**
      * Constructor injection for QuizRepository.
      * 
      * @param quizRepository Repository used for database persistence
+     * @param categoryRepository Repository used to resolve category assignments
      */
-    public QuizService(QuizRepository quizRepository) {
+    public QuizService(QuizRepository quizRepository, CategoryRepository categoryRepository) {
         this.quizRepository = quizRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     /**
@@ -53,7 +59,9 @@ public class QuizService {
      * @param quiz The Quiz entity to save
      * @return The persisted Quiz with generated ID
      */
+    @Transactional
     public Quiz saveQuiz(Quiz quiz) {
+        quiz.setCategory(resolveCategory(quiz.getCategory()));
         if (quiz.getCreatedAt() == null) {
             quiz.setCreatedAt(LocalDate.now());
         }
@@ -74,14 +82,16 @@ public class QuizService {
      * Update an existing quiz's editable attributes (User Story 3).
      * 
      * @param id The ID of the quiz to update
-     * @param updatedQuiz Form data containing updated name, description, courseCode, and isPublished
+     * @param updatedQuiz Form data containing updated name, description, courseCode, isPublished, and category
      * @return The updated Quiz entity
      * @throws IllegalArgumentException if no quiz exists with the given ID
      */
+    @Transactional
     public Quiz updateQuiz(Long id, Quiz updatedQuiz) {
         Quiz existingQuiz = quizRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Quiz not found with id: " + id));
 
+        existingQuiz.setCategory(resolveCategory(updatedQuiz.getCategory()));
         existingQuiz.setName(updatedQuiz.getName());
         existingQuiz.setDescription(updatedQuiz.getDescription());
         existingQuiz.setCourseCode(updatedQuiz.getCourseCode());
@@ -109,5 +119,12 @@ public class QuizService {
     public List<Quiz> getPublishedQuizzes() {
         return quizRepository.findByIsPublishedTrue();
     }
+    /** Resolves only persisted categories; a blank selection leaves the quiz unassigned. */
+    private Category resolveCategory(Category category) {
+        if (category == null || category.getId() == null) return null;
+        return categoryRepository.findById(category.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category.getId()));
+    }
+
 }
 
