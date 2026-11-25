@@ -52,10 +52,9 @@ Quiz-Software/
 │   │   ├── components/                       # Shared UI: Layout (header + nav), PageStates, QuizCard, QuizList
 │   │   ├── pages/                            # Routed pages (QuizListPage, CategoryListPage, NotFoundPage)
 │   │   ├── services/                         # Backend calls: api.ts (base URL, errors), quizService, categoryService
-│   │   ├── hooks/                            # useApiData: loading/error/data/reload for a page
 │   │   ├── App.tsx                           # react-router-dom route table
 │   │   ├── types.ts                          # TypeScript models matching the REST JSON (Quiz, Category)
-│   │   └── main.tsx                          # React DOM application entry point
+│   │   └── main.tsx                          # React DOM entry point & TanStack QueryClientProvider
 │   ├── package.json                          # Frontend dependencies and scripts
 │   └── vite.config.ts                        # Vite build configuration
 ├── Dockerfile                                # Multi-stage container build (Java 25)
