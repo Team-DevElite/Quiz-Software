@@ -54,7 +54,10 @@ public class QuizApplication {
 				q2.addAnswerOption(new AnswerOption("Developers", false, q2));
 				scrumQuiz.addQuestion(q2);
 
-				quizRepository.save(scrumQuiz);
+				// Reuse an existing topic, or create it when only custom categories exist.
+                scrumQuiz.setCategory(categoryRepository.findByName("Agile").stream().findFirst()
+                        .orElseGet(() -> categoryRepository.save(new Category("Agile", "Quizzes about Agile."))));
+                quizRepository.save(scrumQuiz);
 
 				// Seed Quiz 2: Java Fundamentals (Published)
 				Quiz javaQuiz = new Quiz(
@@ -76,7 +79,10 @@ public class QuizApplication {
 				jq2.addAnswerOption(new AnswerOption("null", false, jq2));
 				javaQuiz.addQuestion(jq2);
 
-				quizRepository.save(javaQuiz);
+				// Reuse an existing topic, or create it when only custom categories exist.
+                javaQuiz.setCategory(categoryRepository.findByName("Programming").stream().findFirst()
+                        .orElseGet(() -> categoryRepository.save(new Category("Programming", "Quizzes about Programming."))));
+                quizRepository.save(javaQuiz);
 
 				// Seed Quiz 3: Cloud & DevOps (Draft / Unpublished)
 				Quiz cloudQuiz = new Quiz(
@@ -91,7 +97,10 @@ public class QuizApplication {
 				cq1.addAnswerOption(new AnswerOption("Virtual Machine", false, cq1));
 				cloudQuiz.addQuestion(cq1);
 
-				quizRepository.save(cloudQuiz);
+				// Reuse an existing topic, or create it when only custom categories exist.
+                cloudQuiz.setCategory(categoryRepository.findByName("Cloud & DevOps").stream().findFirst()
+                        .orElseGet(() -> categoryRepository.save(new Category("Cloud & DevOps", "Quizzes about Cloud & DevOps."))));
+                quizRepository.save(cloudQuiz);
 			}
 		};
 	}
