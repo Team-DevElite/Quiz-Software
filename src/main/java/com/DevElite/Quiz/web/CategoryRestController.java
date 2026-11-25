@@ -10,6 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.DevElite.Quiz.domain.Category;
 import com.DevElite.Quiz.domain.CategoryRepository;
+import com.DevElite.Quiz.domain.Quiz;
+import com.DevElite.Quiz.domain.QuizRepository;
 
 /**
  * Student-facing JSON endpoints for categories at /api/categories
@@ -27,12 +29,15 @@ import com.DevElite.Quiz.domain.CategoryRepository;
 public class CategoryRestController {
 
     private final CategoryRepository categoryRepository;
+    private final QuizRepository quizRepository;
 
     /**
      * @param categoryRepository persistence for categories
+     * @param quizRepository persistence for quizzes (used for the quizzes-of-category list)
      */
-    public CategoryRestController(CategoryRepository categoryRepository) {
+    public CategoryRestController(CategoryRepository categoryRepository, QuizRepository quizRepository) {
         this.categoryRepository = categoryRepository;
+        this.quizRepository = quizRepository;
     }
 
     /**
@@ -55,5 +60,20 @@ public class CategoryRestController {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Category with id " + id + " not found"));
+    }
+
+    /**
+     * Lists the published quizzes of a category (user story #26).
+     * @param id category identifier
+     * @return published quizzes in the category, or an empty list when there are none
+     * @throws ResponseStatusException 404 Not Found if no category has this id
+     */
+    @GetMapping("/{id}/quizzes")
+    public Iterable<Quiz> getQuizzesOfCategory(@PathVariable Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Category with id " + id + " not found");
+        }
+        return quizRepository.findByCategoryIdAndIsPublishedTrue(id);
     }
 }

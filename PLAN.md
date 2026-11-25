@@ -92,10 +92,14 @@
 ---
 
 ## Milestone 9: Sprint 2 Setup, Retrospective & Backend Prerequisites (Ex 1–4, 9)
-- [ ] **Task 9.1** *(Ex 1–2)*: Conduct Sprint 1 Mad/Sad/Glad Retrospective on Flinga, rotate Scrum Master, and add `## Retrospectives` with the Flinga link to `README.md`.
-- [ ] **Task 9.2** *(Ex 3–4)*: Close Sprint 1 GitHub issues/stories, create the `Sprint 2` milestone and `user story` / `backend` / `frontend` labels, and create Sprint 2 backlog issues.
-- [ ] **Task 9.3**: Add `spring-boot-starter-validation` to `pom.xml` and set `server.error.include-message=always` in `application.properties` and `application-rahti.properties`.
-- [ ] **Task 9.4** *(Ex 9)*: Add `## Data model` (Mermaid `erDiagram` + entity/attribute/relationship prose) to `README.md` and keep it updated as new entities are added.
+- [x] **Task 9.1** *(Ex 1–2)*: Conduct Sprint 1 Mad/Sad/Glad Retrospective on Flinga, rotate Scrum Master, and add `## Retrospectives` with the Flinga link to `README.md`.
+  - Added `## Retrospectives` to `README.md` with the Sprint 1 Flinga link (`https://edu.flinga.fi/s/ETS4JQN`).
+- [x] **Task 9.2** *(Ex 3–4)*: Close Sprint 1 GitHub issues/stories, create the `Sprint 2` milestone and `user story` / `backend` / `frontend` labels, and create Sprint 2 backlog issues.
+  - Confirmed all Sprint 1 issues are closed; Sprint 2 stories/issues (e.g. stories `#21`–`#26`, issues `#38`–`#47`) tracked on GitHub.
+- [x] **Task 9.3**: Add `spring-boot-starter-validation` to `pom.xml` and set `server.error.include-message=always` in `application.properties` and `application-rahti.properties`.
+  - Added `spring-boot-starter-validation` to `pom.xml` and `server.error.include-message=always` to both `application.properties` and `application-rahti.properties`.
+- [x] **Task 9.4** *(Ex 9)*: Add `## Data model` (Mermaid `erDiagram` + entity/attribute/relationship prose) to `README.md` and keep it updated as new entities are added.
+  - Added `## Data model` to `README.md` covering `Category`, `Quiz`, `Question`, and `AnswerOption` (update when `Answer` is added in Task 11.3).
 
 ---
 
@@ -103,18 +107,21 @@
 - [x] **Task 10.1a** *(Ex 5, user-requested entity/repository scope)*: Create `Category` JPA entity (`id`, `name`, `description`, `@JsonIgnore @OneToMany quizzes`) and `CategoryRepository`, including the nullable owning `Quiz.category` mapping required by `mappedBy`. Add repository and serialization verification.
 - [x] **Task 10.1b** *(Ex 5)*: Create `CategoryService`.
 - [x] **Task 10.2** *(Ex 5)*: Create `CategoryController` with `GET /categories/add` and `POST /categories/add`, `add-category.html`, update `QuizApplication.java` seeder with categories, and add integration tests.
+  - Verification for Tasks 10.1b/10.2: Java 21 `./mvnw test` passed (21 tests); includes invalid input, creation field binding, service persistence, and repeat seeding.
 - [x] **Task 10.3** *(Ex 6)*: Implement `GET /categories` in `CategoryController`, create `categories.html`, add Quizzes/Categories navigation links in `quizzes.html` and `categories.html`, and add `MockMvc` tests.
   - Basic category list (`GET /categories`, `categories.html`) and list integration coverage completed with Task 10.2, as approved for a working post-save redirect. Quizzes/Categories navigation is now implemented on both list pages.
-  - Verification for Tasks 10.1b/10.2: Java 21 `./mvnw test` passed (21 tests); includes invalid input, creation field binding, service persistence, and repeat seeding.
 - [x] **Task 10.4** *(Ex 7)*: Nullable `@ManyToOne Category category` mapping completed in Task 10.1a; update `QuizService.updateQuiz()` to persist category changes, expose `categories` in `QuizController` add/edit forms, add `<select>` dropdown in `add-quiz.html` and `edit-quiz.html`, show Category column in `quizzes.html`, link seeded quizzes to categories, and add integration tests.
   - Verification for Tasks 10.3/10.4: Java 21 `./mvnw test` passed (25 tests). Added navigation/list, form options and preselection, assignment/reassignment/clearing, invalid category IDs, empty list, and repeat seed assignment coverage. Existing quizzes are not reassigned by the seeder.
 - [ ] **Task 10.5** *(Ex 8)*: Add `findByCategoryId` to `QuizRepository`, implement `@Transactional deleteCategory` detaching quizzes (`quiz.setCategory(null)`) before deletion, add `GET /categories/delete/{id}` in `CategoryController`, add Delete button with confirmation in `categories.html`, and add tests verifying quizzes survive category deletion.
+  - Note: `CategoryService` currently injects only `CategoryRepository` and will also need `QuizRepository` injected to detach quizzes before deletion.
 
 ---
 
 ## Milestone 11: Student REST API — Quizzes, Questions, Answers & Results (Ex 10–13)
 - [ ] **Task 11.1** *(Ex 10)*: Implement `GET /api/quizzes/{id}` in `QuizRestController` returning `404 Not Found` (`ResponseStatusException`) when quiz ID does not exist + `MockMvc` tests.
+  - Note: `QuizRestController` currently has a commented-out `POST /api/quizzes` and unused imports to clean up.
 - [ ] **Task 11.2** *(Ex 11)*: Implement `GET /api/quizzes/{id}/questions` returning questions with nested `answerOptions` (using `@JsonManagedReference`/`@JsonBackReference` or DTOs) sorted `Easy` → `Normal` → `Hard`, returning `404 Not Found` if quiz does not exist + `MockMvc` tests.
+  - Note: `Question.answerOptions` currently has `@JsonIgnore` (and `Question.quiz` has no `@JsonIgnore`), so switching to `@JsonManagedReference`/`@JsonBackReference` or response DTOs should keep JSON non-cyclic and avoid leaking unwanted fields.
 - [ ] **Task 11.3** *(Ex 12)*: Create `Answer` JPA entity (`@ManyToOne AnswerOption` with `@OnDelete(CASCADE)`), `AnswerRepository`, `CreateAnswerDto` (`@NotNull answerOptionId`), `AnswerResponseDto`, and `AnswerRestController` (`POST /api/answers`) handling null `answerOptionId` (`400`), nonexistent `answerOptionId` (`404`), and unpublished quiz (`400`/`403`) + tests.
 - [ ] **Task 11.4** *(Ex 13)*: Create `QuestionResultDto` (`questionId`, `questionText`, `questionDifficulty`, `totalAnswers`, `correctAnswers`, `wrongAnswers`), add aggregation logic in service/repository (including 0-answer questions), and implement `GET /api/quizzes/{id}/results` (`404 Not Found` if quiz missing) + `MockMvc` tests.
 
@@ -127,36 +134,41 @@
 
 ---
 
-## ♻️ Shared Student Frontend Foundation — reuse, don't rebuild (done in issues #45–#47)
+## ♻️ Shared Student Frontend Foundation — reuse, don't rebuild (issues #45–#47 & TanStack Query migration)
 The routing and plumbing below already exist on `develop`. Pages for stories #22, #23, #24 and #26 should plug into them instead of re-creating them:
 - **Routing** (`react-router-dom` installed): routes live in `frontend/src/App.tsx` inside the `<Layout>` route. Add a page by adding one `<Route>` there (`quizzes/:id`, `quizzes/:id/results`, `categories/:id/quizzes`); unknown paths fall through to `NotFoundPage`.
 - **Navigation menu**: `components/Layout.tsx` renders the header, the `Quizzes` / `Categories` menu (`NavLink`), the routed page and the footer. Do not add another header or menu per page.
-- **API calls**: `services/api.ts` (`BACKEND_URL`, `getJson`, `ApiError` with `.status` for 404 handling). Add endpoint functions to `services/quizService.ts` / `services/categoryService.ts` (`getCategory(id)` already exists for the category quizzes page).
-- **Loading state**: pages use `useQuery` from `@tanstack/react-query` (shared `QueryClient` configured in `main.tsx`). Include any route params in `queryKey` and forward the injected `signal`: `queryFn: ({ signal }) => getX(id, signal)`.
+- **API calls**: `services/api.ts` exports `BACKEND_URL`, `getJson`, and `ApiError` (with `.status` for 404 handling); add a shared `postJson` helper there when implementing `POST /api/answers` (Task 13.3). Existing service functions: `getPublishedQuizzes` (`services/quizService.ts`), `getCategories` and `getCategory(id)` (`services/categoryService.ts`).
+- **Data fetching & caching (`@tanstack/react-query`)**:
+  - Shared `QueryClient` in `frontend/src/main.tsx` skips retries on 4xx `ApiError` responses (e.g. `404`) and retries transient network/5xx errors once.
+  - Reads use `useQuery` (existing keys: `['quizzes', 'published']`, `['categories']`); include route params in `queryKey`, forward `signal` (`queryFn: ({ signal }) => getX(id, signal)`), and compute `isInitialLoading = isPending || (isFetching && !data)` so error retries display the loading spinner cleanly.
+  - Mutations (`POST /api/answers` in Task 13.3) should use `useMutation` and invalidate the quiz results query cache on success so `QuizResultsPage` does not show stale counts.
+  - `hooks/useApiData.ts` has been removed.
 - **UI states**: `components/PageStates.tsx` (`LoadingState`, `ErrorState`, `EmptyState`) and the `.page-header` / `.page-title` CSS classes.
-- **Types**: `Category` and `Quiz.category` are in `types.ts`.
+- **Types**: `Category` and `Quiz` (including `Quiz.category`) are in `types.ts`; add `Question`, `AnswerOption`, `AnswerResponse`, and `QuestionResult` there for Tasks 13.2–13.4.
 - **Deployment note** (Task 15.1): client-side routes need the Render SPA rewrite `/* -> /index.html`.
 
 ---
 
 ## Milestone 13: Student Frontend — Navigation, Quizzes, Answering & Results (S2-US5, S2-US6, S2-US7, S2-US8 / Ex 18–21)
-- [ ] **Task 13.1** *(Ex 18)*: Install `react-router-dom`, extract API service modules (`frontend/src/services/quizService.ts`, `categoryService.ts`), add top navigation menu (`Quizzes`, `Categories`) in `App.tsx`, update `types.ts` and `QuizCard.tsx` to display `category`, turn quiz name into a link to `/quizzes/:id` (removing placeholder `alert()`), and add a Results link (`/quizzes/:id/results`) next to each quiz.
+- [ ] **Task 13.1** *(Ex 18)*: Install `react-router-dom`, extract API service modules (`frontend/src/services/quizService.ts`, `categoryService.ts`), add top navigation menu (`Quizzes`, `Categories`) in `components/Layout.tsx`, update `types.ts` and `QuizCard.tsx` to display `category`, turn quiz name into a link to `/quizzes/:id` (removing placeholder `alert()`), and add a Results link (`/quizzes/:id/results`) next to each quiz.
   - [x] *Partial (issues #38/#39, story #21)*: `GET /api/quizzes` category serialization verified by `QuizRestCategoryTests`; `Category` type added to `types.ts` and `QuizCard.tsx` shows a category badge (or "Uncategorized").
   - [x] *Partial (issues #46/#47, story #25)*: `react-router-dom` installed; `services/` layer (`api.ts`, `quizService.ts`, `categoryService.ts`) extracted; `Quizzes` / `Categories` navigation menu in `components/Layout.tsx`; quiz list moved to `pages/QuizListPage.tsx`. See *Shared Student Frontend Foundation* above.
+  - [x] *Partial (TanStack Query migration)*: `@tanstack/react-query` installed with shared `QueryClientProvider` in `main.tsx`; `QuizListPage.tsx` and `CategoryListPage.tsx` migrated to `useQuery`; obsolete `hooks/useApiData.ts` removed.
   - [ ] *Remaining (stories #22–#24)*: turn quiz name / "Take Quiz" into a link to `/quizzes/:id` (removing the placeholder `alert()` in `QuizCard.tsx`) and add a Results link (`/quizzes/:id/results`).
-- [ ] **Task 13.2** *(Ex 19)*: Create `QuizPage.tsx` (`/quizzes/:id`) showing quiz name, description, and questions ordered `Easy` → `Normal` → `Hard` with their answer options, loading/error/404/empty states, and back link.
-- [ ] **Task 13.3** *(Ex 20)*: Add per-question radio selection and Submit button in `QuizPage.tsx` calling `POST /api/answers`, showing immediate feedback dialog (*"That is correct, good job!"* / *"That is not correct, try again"*).
-- [ ] **Task 13.4** *(Ex 21)*: Create `QuizResultsPage.tsx` (`/quizzes/:id/results`) displaying quiz total questions and total answers, and per-question text, difficulty, total answers, correct percentage (guarding `0` answers), correct count, and wrong count.
+- [ ] **Task 13.2** *(Ex 19)*: Add `Question`/`AnswerOption` types to `types.ts` and `getQuiz(id, signal)`/`getQuizQuestions(id, signal)` to `quizService.ts`; create `QuizPage.tsx` registered at `quizzes/:id` in `App.tsx` using `useQuery`, `ApiError.status === 404` handling, and `PageStates.tsx`, showing quiz name, description, questions ordered `Easy` → `Normal` → `Hard` with their answer options, empty states, and back link.
+- [ ] **Task 13.3** *(Ex 20)*: Add `postJson` to `services/api.ts`, `AnswerResponse` to `types.ts`, and `submitAnswer` to `quizService.ts`; add per-question radio selection and Submit button in `QuizPage.tsx` using `useMutation` (invalidating the quiz results query key on success) to call `POST /api/answers` and show immediate feedback dialog (*"That is correct, good job!"* / *"That is not correct, try again"*).
+- [ ] **Task 13.4** *(Ex 21)*: Add `QuestionResult` to `types.ts` and `getQuizResults(id, signal)` to `quizService.ts`; create `QuizResultsPage.tsx` registered at `quizzes/:id/results` in `App.tsx` using `useQuery`, `PageStates.tsx`, and `ApiError.status === 404` handling, displaying quiz total questions and total answers, and per-question text, difficulty, total answers, correct percentage (guarding `0` answers), correct count, and wrong count.
 
 ---
 
 ## Milestone 14: Student Frontend — Category Browsing (S2-US9, S2-US10 / Ex 22–23)
-- [x] **Task 14.1** *(Ex 22, issues #46/#47)*: Create `CategoryListPage.tsx` (`/categories`) listing all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
-- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` (`/categories/:id/quizzes`) displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links). Category name links on `/categories` already point to `/categories/:id/quizzes` (they show `NotFoundPage` until this route is added); use `getCategory(id)` from `categoryService.ts` for the header and add `getCategoryQuizzes(id)` next to it once `GET /api/categories/{id}/quizzes` (Task 12.2) exists.
+- [x] **Task 14.1** *(Ex 22, issues #46/#47)*: Create `CategoryListPage.tsx` (`/categories`) using `useQuery` (`['categories']`) to list all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
+- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` registered at `categories/:id/quizzes` in `App.tsx` using `useQuery` with existing `getCategory(id, signal)` and new `getCategoryQuizzes(id, signal)` (once Task 12.2 exists), `ApiError.status === 404` handling, and `PageStates.tsx`, displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links). Category name links on `/categories` already point to `/categories/:id/quizzes` (they show `NotFoundPage` until this route is added).
 
 ---
 
 ## Milestone 15: Production Deployment, Developer Guide, Release & Sprint Review (Ex 24–27)
 - [ ] **Task 15.1** *(Ex 24)*: Deploy Sprint 2 backend to Rahti and frontend to Render (with SPA rewrite `/* -> /index.html`), test answering quizzes & viewing results in production, and verify live URL in `README.md`.
-- [ ] **Task 15.2** *(Ex 25)*: Restructure `README.md` `## Developer guide` into `### Backend` and `### Frontend` (exact directory, install/run commands, backend/frontend tech stacks, H2 dev vs. PostgreSQL prod DBs) and remove outdated PostgreSQL driver note.
+- [ ] **Task 15.2** *(Ex 25)*: Restructure `README.md` `## Developer guide` into `### Backend` and `### Frontend` (exact directory, install/run commands, backend/frontend tech stacks including `react-router-dom` and `@tanstack/react-query`, H2 dev vs. PostgreSQL prod DBs) and remove the outdated PostgreSQL driver note (`pom.xml` already includes `org.postgresql:postgresql`).
 - [ ] **Task 15.3** *(Ex 26–27)*: Push all work to `main`, create GitHub Release tag `sprint2` titled `"Sprint 2"`, verify realistic demo data, and prepare Sprint Review presentation before Tue 1.12. 23:59.

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout.tsx';
 import { QuizListPage } from './pages/QuizListPage.tsx';
 import { CategoryListPage } from './pages/CategoryListPage.tsx';
+import { CategoryQuizListPage } from './pages/CategoryQuizListPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
 import './App.css';
 
@@ -19,6 +20,7 @@ export function App() {
         <Route element={<Layout />}>
           <Route index element={<QuizListPage />} />
           <Route path="categories" element={<CategoryListPage />} />
+          <Route path="categories/:id/quizzes" element={<CategoryQuizListPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
