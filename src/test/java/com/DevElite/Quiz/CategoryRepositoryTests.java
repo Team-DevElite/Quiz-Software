@@ -32,12 +32,12 @@ class CategoryRepositoryTests {
     /** Verifies generated IDs, exact-name lookup, updates and deletion. */
     @Test
     void categoryCrud() {
-        Category category = categoryRepository.save(new Category("Agile", "Agile principles"));
+        Category category = categoryRepository.save(new Category("Repository CRUD Category", "Agile principles"));
         entityManager.flush();
         entityManager.clear();
 
         assertNotNull(category.getId());
-        Category loaded = categoryRepository.findByName("Agile").get(0);
+        Category loaded = categoryRepository.findByName("Repository CRUD Category").get(0);
         assertEquals("Agile principles", loaded.getDescription());
         loaded.setName("Agile Methods");
         loaded.setDescription("Scrum and Kanban");
@@ -45,7 +45,7 @@ class CategoryRepositoryTests {
         entityManager.flush();
         entityManager.clear();
 
-        assertTrue(categoryRepository.findByName("Agile").isEmpty());
+        assertTrue(categoryRepository.findByName("Repository CRUD Category").isEmpty());
         assertEquals("Scrum and Kanban", categoryRepository.findById(category.getId()).orElseThrow().getDescription());
         categoryRepository.deleteById(category.getId());
         entityManager.flush();
