@@ -63,6 +63,52 @@ The domain hierarchy is `Category → Quiz → Question → AnswerOption`, with 
 
 Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories through `CategoryRestController` (`/api/categories`). CategoryService provides validated persistence and reads. Teachers can create categories at `/categories/add` (required name, optional description, maximum 255 characters each) and browse a basic list at `/categories`. Invalid submissions preserve entered values and show field errors; successful creation redirects to the list. Demo categories (Agile, Programming, Cloud & DevOps) are seeded only when the category repository is empty, independently of existing quizzes. Teachers can navigate between Quizzes and Categories, assign or clear a category in the quiz add/edit forms, and see the category (or Uncategorized) in the quiz list. Invalid category IDs redisplay the form with an error. Newly seeded demo quizzes are linked to their matching categories; existing quizzes are not reassigned. Category deletion remains planned Sprint 2 work.
 
+## Data model
+
+```mermaid
+erDiagram
+    CATEGORY ||--o{ QUIZ : "categorizes (1:N)"
+    QUIZ ||--o{ QUESTION : "contains (1:N)"
+    QUESTION ||--o{ ANSWER_OPTION : "contains (1:N)"
+
+    CATEGORY {
+        Long id PK
+        String name
+        String description
+    }
+
+    QUIZ {
+        Long id PK
+        String name
+        String description
+        String courseCode
+        Boolean isPublished
+        LocalDate createdAt
+        Long category_id FK "nullable"
+    }
+
+    QUESTION {
+        Long id PK
+        String questionText
+        String difficulty "Easy | Normal | Hard"
+        Long quiz_id FK
+    }
+
+    ANSWER_OPTION {
+        Long id PK
+        String optionText
+        Boolean isCorrect
+        Long question_id FK
+    }
+```
+
+- **`Category`**: `id` (auto-generated PK), `name` (required, non-null), `description` (optional). Has an inverse `@OneToMany` list of `Quiz` entities annotated with `@JsonIgnore` and **no** cascade delete or orphan removal — quizzes must be explicitly detached before deleting a category.
+- **`Quiz`**: `id` (auto-generated PK), `name`, `description`, `courseCode`, `isPublished` (defaults to `false`), `createdAt` (defaults to current date), and an optional nullable `category` (`category_id` FK). Owns `@OneToMany` `questions` with `CascadeType.ALL`, `orphanRemoval = true`, and `@JsonIgnore`.
+- **`Question`**: `id` (auto-generated PK), `questionText`, `difficulty` (`"Easy"`, `"Normal"`, or `"Hard"`, defaulting to `"Normal"`), and parent `quiz` (`quiz_id` FK with `@OnDelete(CASCADE)`). Owns `@OneToMany` `answerOptions` with `CascadeType.ALL`, `orphanRemoval = true`, and `@JsonIgnore`.
+- **`AnswerOption`**: `id` (auto-generated PK), `optionText`, `isCorrect` (defaults to `false`), and parent `question` (`question_id` FK with `@OnDelete(CASCADE)`).
+
+> Note: An `Answer` entity (`ANSWER_OPTION ||--o{ ANSWER`) is planned for Sprint 2 (Task 11.3) and will be added to this diagram once implemented.
+
 ## Run locally
 
 Install **JDK 21 or a compatible newer JDK** and Git. Maven is downloaded by the wrapper on first use; a separate Maven installation is not required. Check your Java installation with `java -version`.
@@ -187,6 +233,10 @@ The Dockerfile uses Java 25 build/runtime images, exposes port 8080, and skips t
 | `DB_PASSWORD` | Database password |
 
 **Deployment preparation remains incomplete:** `pom.xml` does not yet include the PostgreSQL JDBC driver required by this profile. The profile also inherits the enabled H2 console setting from the default configuration. Review these settings before production deployment. Hibernate is configured with `ddl-auto=update`. The deployed app is available at [Quizzer on Rahti](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/).
+
+## Retrospectives
+
+- **Sprint 1 Retrospective (Mad / Sad / Glad):** [Flinga board](https://edu.flinga.fi/s/ETS4JQN)
 
 ## Team and project documentation
 
