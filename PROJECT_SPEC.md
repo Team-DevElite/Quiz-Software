@@ -14,7 +14,7 @@ Quizzer is an educational quiz management and delivery platform built for univer
 
 ## 2. Domain Data Contracts & ER Model
 
-**Implementation status:** Category entity/repository persistence and the nullable `Quiz.category` mapping are implemented. `GET /api/categories` and `GET /api/categories/{id}` are implemented. CategoryService, teacher category creation (`GET/POST /categories/add`), and a basic teacher category list (`GET /categories`) are implemented. Creation requires a nonblank name; name and description are limited to 255 characters. Demo categories are seeded independently when no categories exist. Teacher quiz category assignment, full category navigation, safe deletion workflow, and `GET /api/categories/{id}/quizzes` remain planned Sprint 2 work.
+**Implementation status:** Category entity/repository persistence and the nullable `Quiz.category` mapping are implemented. `GET /api/categories` and `GET /api/categories/{id}` are implemented. CategoryService, teacher category creation (`GET/POST /categories/add`), and a basic teacher category list (`GET /categories`) are implemented. Creation requires a nonblank name; name and description are limited to 255 characters. Demo categories are seeded independently when no categories exist. Teacher Quizzes/Categories navigation and optional category assignment in quiz add/edit forms are implemented, including reassignment, clearing, and invalid-selection errors. Quiz lists display category names, and newly seeded quizzes are linked to their matching categories without modifying existing quizzes. Safe deletion workflow and `GET /api/categories/{id}/quizzes` remain planned Sprint 2 work.
 
 ```mermaid
 erDiagram
