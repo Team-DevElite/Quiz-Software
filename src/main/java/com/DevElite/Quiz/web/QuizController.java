@@ -8,7 +8,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.DevElite.Quiz.domain.Quiz;
+import com.DevElite.Quiz.domain.Category;
 import com.DevElite.Quiz.service.QuizService;
+import com.DevElite.Quiz.service.CategoryService;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 
 /**
  * Controller handling teacher web interface interactions for Quiz management.
@@ -20,14 +25,31 @@ import com.DevElite.Quiz.service.QuizService;
 public class QuizController {
 
     private final QuizService quizService;
+    private final CategoryService categoryService;
 
     /**
      * Constructor injection for QuizService dependency.
      * 
      * @param quizService Service layer handling quiz business logic and persistence
+     * @param categoryService Categories available for quiz assignment
      */
-    public QuizController(QuizService quizService) {
+    public QuizController(QuizService quizService, CategoryService categoryService) {
         this.quizService = quizService;
+        this.categoryService = categoryService;
+    }
+
+    /** Limits form binding to quiz details and the selected category ID. @param binder form binder */
+    @InitBinder("quiz")
+    public void configureBinding(WebDataBinder binder) {
+        binder.setAllowedFields("name", "description", "courseCode", "isPublished", "category.id");
+    }
+
+    /** Supplies category options for both add/edit forms, including validation redisplays.
+     * @return available categories
+     */
+    @ModelAttribute("categories")
+    public Iterable<Category> categoryOptions() {
+        return categoryService.getAllCategories();
     }
 
     /**
@@ -61,10 +83,13 @@ public class QuizController {
      * Handles submission of the quiz creation form (User Story 1).
      * 
      * @param quiz The quiz object bound from the submitted form fields
+     * @param errors binding and category selection errors
      * @return Redirect URL back to the quiz list ("/quizzes")
      */
     @PostMapping("/quizzes/add")
-    public String saveQuiz(@ModelAttribute("quiz") Quiz quiz) {
+    public String saveQuiz(@ModelAttribute("quiz") Quiz quiz, BindingResult errors) {
+        validateCategory(quiz, errors);
+        if (errors.hasErrors()) return "add-quiz";
         quizService.saveQuiz(quiz);
         return "redirect:/quizzes";
     }
@@ -89,10 +114,14 @@ public class QuizController {
      * 
      * @param id The ID of the quiz to update
      * @param quiz The quiz form data with updated values
+     * @param errors binding and category selection errors
      * @return Redirect URL back to the quiz list ("/quizzes")
      */
     @PostMapping("/quizzes/edit/{id}")
-    public String updateQuiz(@PathVariable("id") Long id, @ModelAttribute("quiz") Quiz quiz) {
+    public String updateQuiz(@PathVariable("id") Long id, @ModelAttribute("quiz") Quiz quiz, BindingResult errors) {
+        quiz.setId(id);
+        validateCategory(quiz, errors);
+        if (errors.hasErrors()) return "edit-quiz";
         quizService.updateQuiz(id, quiz);
         return "redirect:/quizzes";
     }
@@ -110,4 +139,13 @@ public class QuizController {
         quizService.deleteQuiz(id);
         return "redirect:/quizzes";
     }
+    /** Reports stale or invalid selections as form errors before attempting persistence. */
+    private void validateCategory(Quiz quiz, BindingResult errors) {
+        if (!errors.hasFieldErrors("category.id") && quiz.getCategory() != null &&
+                quiz.getCategory().getId() != null &&
+                categoryService.getCategoryById(quiz.getCategory().getId()).isEmpty()) {
+            errors.rejectValue("category.id", "missing", "Selected category no longer exists.");
+        }
+    }
+
 }
