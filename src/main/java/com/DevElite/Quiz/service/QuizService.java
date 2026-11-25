@@ -110,4 +110,3 @@ public class QuizService {
         return quizRepository.findByIsPublishedTrue();
     }
 }
-
