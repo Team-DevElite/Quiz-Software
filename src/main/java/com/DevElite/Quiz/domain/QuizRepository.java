@@ -31,5 +31,12 @@ public interface QuizRepository extends CrudRepository<Quiz, Long> {
      * @param courseCode The institutional course code (e.g., "SOF005AS3AE")
      * @return List of matching Quiz entities
      */
+    /**
+     * Find published quizzes belonging to one category (student story #26).
+     *
+     * @param categoryId id of the category
+     * @return List of published quizzes in that category, empty if none
+     */
+    List<Quiz> findByCategoryIdAndIsPublishedTrue(Long categoryId);
     List<Quiz> findByCourseCode(String courseCode);
 }
