@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import com.DevElite.Quiz.domain.AnswerOption;
+import com.DevElite.Quiz.domain.Category;
+import com.DevElite.Quiz.domain.CategoryRepository;
 import com.DevElite.Quiz.domain.Question;
 import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
@@ -18,14 +20,20 @@ public class QuizApplication {
 	}
 
 	/**
-	 * Seeds mock demo data into the database if the repository is empty.
+	 * Seeds realistic demo quizzes and categories independently when their repositories are empty.
 	 *
-	 * @param quizRepository Repository used for database persistence
+	 * @param quizRepository Repository used for quiz persistence
+	 * @param categoryRepository Repository used for category persistence
 	 * @return CommandLineRunner callback executed on application startup
 	 */
 	@Bean
-	public CommandLineRunner demoData(QuizRepository quizRepository) {
+	public CommandLineRunner demoData(QuizRepository quizRepository, CategoryRepository categoryRepository) {
 		return args -> {
+            if (categoryRepository.count() == 0) {
+                categoryRepository.save(new Category("Agile", "Agile principles and project management frameworks."));
+                categoryRepository.save(new Category("Programming", "Programming languages and software development fundamentals."));
+                categoryRepository.save(new Category("Cloud & DevOps", "Containers, CI/CD pipelines, and cloud architecture."));
+            }
 			if (quizRepository.count() == 0) {
 				// Seed Quiz 1: The Scrum Framework (Published)
 				Quiz scrumQuiz = new Quiz(
