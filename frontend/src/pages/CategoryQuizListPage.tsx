@@ -1,8 +1,7 @@
-import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { QuizList } from '../components/QuizList.tsx';
 import { EmptyState, ErrorState, LoadingState } from '../components/PageStates.tsx';
-import { useApiData } from '../hooks/useApiData.ts';
 import { ApiError } from '../services/api.ts';
 import { getCategory } from '../services/categoryService.ts';
 import { getQuizzesByCategory } from '../services/quizService.ts';
@@ -13,20 +12,22 @@ export function CategoryQuizListPage() {
   const categoryId = Number(id);
   const validId = Number.isInteger(categoryId) && categoryId > 0;
 
-  // Stable loaders (see useApiData): they change only when the route id changes.
-  const loadCategory = useCallback((signal: AbortSignal) => getCategory(categoryId, signal), [categoryId]);
-  const loadQuizzes = useCallback((signal: AbortSignal) => getQuizzesByCategory(categoryId, signal), [categoryId]);
+  const category = useQuery({
+    queryKey: ['category', categoryId],
+    queryFn: ({ signal }) => validId ? getCategory(categoryId, signal) : rejectNotFound(),
+  });
+  const quizzes = useQuery({
+    queryKey: ['category-quizzes', categoryId],
+    queryFn: ({ signal }) => validId ? getQuizzesByCategory(categoryId, signal) : rejectNotFound(),
+  });
 
-  const category = useApiData(validId ? loadCategory : rejectNotFound);
-  const quizzes = useApiData(validId ? loadQuizzes : rejectNotFound);
-
-  const loading = category.loading || quizzes.loading;
+  const loading = category.isPending || quizzes.isPending;
   const error = category.error ?? quizzes.error;
   const notFound = error instanceof ApiError && error.status === 404;
 
   const reload = () => {
-    category.reload();
-    quizzes.reload();
+    void category.refetch();
+    void quizzes.refetch();
   };
 
   return (
