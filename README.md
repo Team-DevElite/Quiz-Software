@@ -1,5 +1,7 @@
 # Quizzer
 
+[![CI](https://github.com/Team-DevElite/Quiz-Software/actions/workflows/ci.yml/badge.svg)](https://github.com/Team-DevElite/Quiz-Software/actions/workflows/ci.yml)
+
 Quizzer is an educational quiz platform developed by **Team DevElite** for course SOF005AS3AE. This repository contains the Java backend, a server-rendered teacher dashboard, a quiz REST API, and a modern React/Vite student dashboard.
 
 - **Teacher Dashboard (Live on Rahti):** [https://quiz-software-soft-dev-proj.2.rahtiapp.fi/](https://quiz-software-soft-dev-proj.2.rahtiapp.fi/)
