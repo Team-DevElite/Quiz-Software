@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { Quiz } from './types.ts';
 import { QuizList } from './components/QuizList.tsx';
 import './App.css';
@@ -10,42 +10,56 @@ export function App() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [requestVersion, setRequestVersion] = useState(0);
 
-  const fetchQuizzes = useCallback(async () => {
+  // Button events reset the UI; initial loading is already set by useState.
+  const refreshQuizzes = () => {
     setLoading(true);
     setError(null);
-
-    try {
-      const response = await fetch(API_ENDPOINT, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Server returned HTTP ${response.status} (${response.statusText || 'Error'})`
-        );
-      }
-
-      const data: Quiz[] = await response.json();
-      setQuizzes(data);
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Failed to load quizzes. Please check your network connection.';
-      setError(
-        `${message}. Ensure the Quizzer backend is running at ${API_ENDPOINT}.`
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    setRequestVersion(version => version + 1);
+  };
 
   useEffect(() => {
-    fetchQuizzes();
-  }, [fetchQuizzes]);
+    const controller = new AbortController();
+    const fetchQuizzes = async () => {
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          signal: controller.signal,
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Server returned HTTP ${response.status} (${response.statusText || 'Error'})`
+          );
+        }
+
+        const data: Quiz[] = await response.json();
+        if (!controller.signal.aborted) {
+          setQuizzes(data);
+        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to load quizzes. Please check your network connection.';
+        setError(
+          `${message}. Ensure the Quizzer backend is running at ${API_ENDPOINT}.`
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void fetchQuizzes();
+    // Cancel stale requests on refresh, unmount, and Strict Mode effect cleanup.
+    return () => controller.abort();
+  }, [requestVersion]);
 
   return (
     <div className="app-container">
@@ -75,7 +89,7 @@ export function App() {
           <button
             type="button"
             className="btn-refresh"
-            onClick={fetchQuizzes}
+            onClick={refreshQuizzes}
             disabled={loading}
             aria-label="Refresh quiz list"
           >
@@ -104,7 +118,7 @@ export function App() {
               <button
                 type="button"
                 className="btn-primary"
-                onClick={fetchQuizzes}
+                onClick={refreshQuizzes}
               >
                 Try Again
               </button>
@@ -125,7 +139,7 @@ export function App() {
             <button
               type="button"
               className="btn-secondary"
-              onClick={fetchQuizzes}
+              onClick={refreshQuizzes}
             >
               Check Again
             </button>
