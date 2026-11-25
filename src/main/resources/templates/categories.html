@@ -171,7 +171,11 @@
     </style>
 </head>
 <body><main class="container">
-    <nav class="breadcrumb"><a th:href="@{/quizzes}">Quizzes</a> / Categories</nav>
+    <nav aria-label="Teacher navigation" style="display:flex; gap:0.75rem; margin-bottom:1.5rem">
+        <a class="btn btn-secondary" th:href="@{/quizzes}" >Quizzes</a>
+        <a class="btn btn-secondary" th:href="@{/categories}" aria-current="page">Categories</a>
+    </nav>
+
     <section class="card"><h1>Categories</h1>
         <p><a class="btn btn-primary" th:href="@{/categories/add}">Add Category</a></p>
         <p th:if="${#lists.isEmpty(categories)}">No categories have been added yet.</p>
