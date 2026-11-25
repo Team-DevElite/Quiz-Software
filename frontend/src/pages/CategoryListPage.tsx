@@ -57,12 +57,12 @@ export function CategoryListPage() {
         <ul className="category-grid">
           {categories.map((category) => (
             <li key={category.id} className="category-card">
-              <h3 className="category-name">
-                <Link to={`/categories/${category.id}/quizzes`}>{category.name}</Link>
-              </h3>
-              <p className="category-description">
-                {category.description || 'No description provided.'}
-              </p>
+              <Link className="category-card-link" to={`/categories/${category.id}/quizzes`}>
+                <h3 className="category-name">{category.name}</h3>
+                <p className="category-description">
+                  {category.description || 'No description provided.'}
+                </p>
+              </Link>
             </li>
           ))}
         </ul>
