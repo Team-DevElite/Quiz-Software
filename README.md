@@ -9,11 +9,12 @@ Quizzer is an educational quiz platform developed by **Team DevElite** for cours
 
 ## Current features
 
-- Create, list, edit, publish/unpublish, and delete quizzes through the teacher dashboard.
+- Create, list, edit, publish/unpublish, categorize, and delete quizzes through the teacher dashboard.
+- Manage categories (create, list, assign to quizzes, and safely delete categories while keeping existing quizzes as uncategorized).
 - Manage questions belonging to a quiz (view, add, and cascade delete).
 - Manage answer options for questions (view, add, edit, and delete).
-- Student Dashboard (React + TypeScript + Vite) displaying active, published quizzes with live search and filter.
-- REST API endpoint `GET /api/quizzes` returning only published quizzes with CORS enabled (`@CrossOrigin(origins = "*")`).
+- Student Dashboard (React + TypeScript + Vite) displaying active, published quizzes with live search and filter, plus category browsing (`/categories` and `/categories/:id/quizzes`).
+- REST API endpoints for published quizzes (`GET /api/quizzes`) and categories (`GET /api/categories`, `GET /api/categories/{id}`, `GET /api/categories/{id}/quizzes`) with CORS enabled (`@CrossOrigin(origins = "*")`).
 - Automatic database seeder (`CommandLineRunner`) populating realistic demo quizzes (Scrum Framework, Java Fundamentals, DevOps draft) if the repository is empty on startup.
 - Persist quizzes, questions, and answer options with Spring Data JPA. Deleting a quiz cascades to its questions and answer options.
 
@@ -50,7 +51,7 @@ Quiz-Software/
 ├── frontend/                                 # Student dashboard (React + TypeScript + Vite)
 │   ├── src/
 │   │   ├── components/                       # Shared UI: Layout (header + nav), PageStates, QuizCard, QuizList
-│   │   ├── pages/                            # Routed pages (QuizListPage, CategoryListPage, NotFoundPage)
+│   │   ├── pages/                            # Routed pages (QuizListPage, CategoryListPage, CategoryQuizListPage, NotFoundPage)
 │   │   ├── services/                         # Backend calls: api.ts (base URL, errors), quizService, categoryService
 │   │   ├── App.tsx                           # react-router-dom route table
 │   │   ├── types.ts                          # TypeScript models matching the REST JSON (Quiz, Category)
@@ -63,7 +64,7 @@ Quiz-Software/
 
 The domain hierarchy is `Category → Quiz → Question → AnswerOption`, with an optional category per quiz. MVC controllers render HTML; the REST controller returns JSON. Category quizzes, quiz questions, and question answer options use `@JsonIgnore` to prevent recursive JSON.
 
-Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories through `CategoryRestController` (`/api/categories`). CategoryService provides validated persistence and reads. Teachers can create categories at `/categories/add` (required name, optional description, maximum 255 characters each) and browse a basic list at `/categories`. Invalid submissions preserve entered values and show field errors; successful creation redirects to the list. Demo categories (Agile, Programming, Cloud & DevOps) are seeded only when the category repository is empty, independently of existing quizzes. Teachers can navigate between Quizzes and Categories, assign or clear a category in the quiz add/edit forms, and see the category (or Uncategorized) in the quiz list. Invalid category IDs redisplay the form with an error. Newly seeded demo quizzes are linked to their matching categories; existing quizzes are not reassigned. Category deletion remains planned Sprint 2 work.
+Category persistence is available through `CategoryRepository` (standard CRUD and exact-name lookup). `Category` has an identity-generated `id`, required non-null `name`, optional `description`, and an inverse quiz collection. `Quiz.category` owns the nullable `category_id` foreign key; existing quizzes remain uncategorized. Category relationships have no cascading deletion or orphan removal. Referencing quizzes must be explicitly detached before deleting a category. Students can read categories and published quizzes per category through `CategoryRestController` (`/api/categories`, `/api/categories/{id}`, `/api/categories/{id}/quizzes`). CategoryService provides validated persistence, reads, and `@Transactional` deletion with quiz detachment. Teachers can create categories at `/categories/add` (required name, optional description, maximum 255 characters each), browse categories at `/categories`, and delete categories via `/categories/delete/{id}` (with a confirmation prompt, detaching linked quizzes so they survive as uncategorized). Invalid submissions preserve entered values and show field errors; successful creation redirects to the list. Demo categories (Agile, Programming, Cloud & DevOps) are seeded only when the category repository is empty, independently of existing quizzes. Teachers can navigate between Quizzes and Categories, assign or clear a category in the quiz add/edit forms, and see the category (or Uncategorized) in the quiz list. Invalid category IDs redisplay the form with an error. Newly seeded demo quizzes are linked to their matching categories; existing quizzes are not reassigned.
 
 ## Data model
 
@@ -150,7 +151,7 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at [http://localhost:5173/](http://localhost:5173/) and connects to the backend at `http://localhost:8080`. Pages: `/` (published quizzes) and `/categories` (all categories). Because the dashboard uses client-side routing, a static host must rewrite unknown paths to `/index.html` (on Render: rewrite `/*` → `/index.html`).
+The frontend will be available at [http://localhost:5173/](http://localhost:5173/) and connects to the backend at `http://localhost:8080`. Pages: `/` (published quizzes), `/categories` (all categories), and `/categories/:id/quizzes` (published quizzes in a category). Because the dashboard uses client-side routing, a static host must rewrite unknown paths to `/index.html` (on Render: rewrite `/*` → `/index.html`).
 
 Use these credentials in the H2 console:
 
@@ -174,6 +175,9 @@ Category creation: `GET /categories/add` displays the form; `POST /categories/ad
 | GET | `/questions/{questionId}/options` | List answer options |
 | GET / POST | `/questions/{questionId}/options/add` | Display / submit answer option form |
 | GET | `/options/delete/{id}` | Delete an answer option |
+| GET | `/categories` | List categories |
+| GET / POST | `/categories/add` | Display / submit category creation form |
+| GET | `/categories/delete/{id}` | Detach linked quizzes and delete a category |
 
 ## REST API
 
@@ -183,6 +187,7 @@ Category creation: `GET /categories/add` displays the form; `POST /categories/ad
 | POST | `/api/quizzes` | (Temporarily commented out) Save a quiz and return it with HTTP 201 |
 | GET | `/api/categories` | Return all categories as `{id, name, description}` (CORS enabled) |
 | GET | `/api/categories/{id}` | Return one category, or `404 Not Found` |
+| GET | `/api/categories/{id}/quizzes` | Return only published quizzes in one category, or `404 Not Found` |
 
 List published quizzes:
 

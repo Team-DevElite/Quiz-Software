@@ -6,14 +6,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.DevElite.Quiz.domain.Category;
 import com.DevElite.Quiz.domain.CategoryRepository;
-
 import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
 
 /**
- * Service class encapsulating business logic and CRUD operations for {@link Quiz} entities.
+ * Service class encapsulating business logic and CRUD operations for
+ * {@link Quiz} entities.
  */
 @Service
 public class QuizService {
@@ -24,7 +25,7 @@ public class QuizService {
     /**
      * Constructor injection for QuizRepository.
      * 
-     * @param quizRepository Repository used for database persistence
+     * @param quizRepository     Repository used for database persistence
      * @param categoryRepository Repository used to resolve category assignments
      */
     public QuizService(QuizRepository quizRepository, CategoryRepository categoryRepository) {
@@ -54,7 +55,9 @@ public class QuizService {
     /**
      * Persist a new or modified quiz.
      * 
-     * <p>Ensures that a creation timestamp is set if not already present.</p>
+     * <p>
+     * Ensures that a creation timestamp is set if not already present.
+     * </p>
      * 
      * @param quiz The Quiz entity to save
      * @return The persisted Quiz with generated ID
@@ -81,8 +84,9 @@ public class QuizService {
     /**
      * Update an existing quiz's editable attributes (User Story 3).
      * 
-     * @param id The ID of the quiz to update
-     * @param updatedQuiz Form data containing updated name, description, courseCode, isPublished, and category
+     * @param id          The ID of the quiz to update
+     * @param updatedQuiz Form data containing updated name, description,
+     *                    courseCode, isPublished, and category
      * @return The updated Quiz entity
      * @throws IllegalArgumentException if no quiz exists with the given ID
      */
@@ -103,7 +107,9 @@ public class QuizService {
     /**
      * Delete a quiz by its ID (User Story 4).
      * 
-     * <p>Cascades deletion down to all child questions and answer options.</p>
+     * <p>
+     * Cascades deletion down to all child questions and answer options.
+     * </p>
      * 
      * @param id The ID of the quiz to delete
      */
@@ -119,12 +125,16 @@ public class QuizService {
     public List<Quiz> getPublishedQuizzes() {
         return quizRepository.findByIsPublishedTrue();
     }
-    /** Resolves only persisted categories; a blank selection leaves the quiz unassigned. */
+
+    /**
+     * Resolves only persisted categories; a blank selection leaves the quiz
+     * unassigned.
+     */
     private Category resolveCategory(Category category) {
-        if (category == null || category.getId() == null) return null;
+        if (category == null || category.getId() == null)
+            return null;
         return categoryRepository.findById(category.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category.getId()));
     }
 
 }
-
