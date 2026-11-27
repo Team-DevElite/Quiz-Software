@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import com.DevElite.Quiz.domain.Category;
 import com.DevElite.Quiz.domain.CategoryRepository;
+import com.DevElite.Quiz.domain.Quiz;
 import com.DevElite.Quiz.domain.QuizRepository;
 import com.DevElite.Quiz.service.CategoryService;
 
@@ -88,5 +89,55 @@ class CategoryManagementTests {
         application.demoData(quizzes, categories).run();
         assertEquals(3, categories.count());
         assertEquals(quizCount, quizzes.count());
+    }
+
+    @Test
+    void deletesCategoryAndPreservesDetachedQuizzes() throws Exception {
+        Category target = categories.save(new Category("Temporary Topic", "Will be deleted"));
+        Category other = categories.save(new Category("Keep Topic", "Should remain"));
+
+        Quiz publishedQuiz = new Quiz("Published Assigned Quiz", "Survives deletion", "DEL101", true);
+        publishedQuiz.setCategory(target);
+        quizzes.save(publishedQuiz);
+
+        Quiz draftQuiz = new Quiz("Draft Assigned Quiz", "Also survives deletion", "DEL102", false);
+        draftQuiz.setCategory(target);
+        quizzes.save(draftQuiz);
+
+        Quiz otherQuiz = new Quiz("Other Category Quiz", "Keeps its category", "KEEP101", true);
+        otherQuiz.setCategory(other);
+        quizzes.save(otherQuiz);
+
+        assertEquals(2, quizzes.findByCategoryId(target.getId()).size());
+
+        mvc.perform(get("/categories"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("/categories/delete/" + target.getId())))
+            .andExpect(content().string(containsString("return confirm(")));
+
+        mvc.perform(get("/categories/delete/" + target.getId()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/categories"));
+
+        assertFalse(categories.existsById(target.getId()));
+        assertTrue(categories.existsById(other.getId()));
+        assertTrue(quizzes.findByCategoryId(target.getId()).isEmpty());
+
+        Quiz reloadedPublished = quizzes.findById(publishedQuiz.getId()).orElseThrow();
+        Quiz reloadedDraft = quizzes.findById(draftQuiz.getId()).orElseThrow();
+        Quiz reloadedOther = quizzes.findById(otherQuiz.getId()).orElseThrow();
+
+        assertNull(reloadedPublished.getCategory());
+        assertNull(reloadedDraft.getCategory());
+        assertEquals(other.getId(), reloadedOther.getCategory().getId());
+    }
+
+    @Test
+    void deletingMissingCategoryRedirectsWithoutError() throws Exception {
+        long categoryCount = categories.count();
+        mvc.perform(get("/categories/delete/999999"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/categories"));
+        assertEquals(categoryCount, categories.count());
     }
 }
