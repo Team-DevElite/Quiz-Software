@@ -112,8 +112,8 @@
   - Basic category list (`GET /categories`, `categories.html`) and list integration coverage completed with Task 10.2, as approved for a working post-save redirect. Quizzes/Categories navigation is now implemented on both list pages.
 - [x] **Task 10.4** *(Ex 7)*: Nullable `@ManyToOne Category category` mapping completed in Task 10.1a; update `QuizService.updateQuiz()` to persist category changes, expose `categories` in `QuizController` add/edit forms, add `<select>` dropdown in `add-quiz.html` and `edit-quiz.html`, show Category column in `quizzes.html`, link seeded quizzes to categories, and add integration tests.
   - Verification for Tasks 10.3/10.4: Java 21 `./mvnw test` passed (25 tests). Added navigation/list, form options and preselection, assignment/reassignment/clearing, invalid category IDs, empty list, and repeat seed assignment coverage. Existing quizzes are not reassigned by the seeder.
-- [ ] **Task 10.5** *(Ex 8)*: Add `findByCategoryId` to `QuizRepository`, implement `@Transactional deleteCategory` detaching quizzes (`quiz.setCategory(null)`) before deletion, add `GET /categories/delete/{id}` in `CategoryController`, add Delete button with confirmation in `categories.html`, and add tests verifying quizzes survive category deletion.
-  - Note: `CategoryService` currently injects only `CategoryRepository` and will also need `QuizRepository` injected to detach quizzes before deletion.
+- [x] **Task 10.5** *(Ex 8)*: Add `findByCategoryId` to `QuizRepository`, implement `@Transactional deleteCategory` detaching quizzes (`quiz.setCategory(null)`) before deletion, add `GET /categories/delete/{id}` in `CategoryController`, add Delete button with confirmation in `categories.html`, and add tests verifying quizzes survive category deletion.
+  - Verification for Task 10.5: Java 21 `./mvnw test` passed (30 tests). Verified delete button and confirmation dialog rendering, `QuizRepository.findByCategoryId`, transactional detachment of published and draft quizzes before category deletion, preservation of unrelated categories, and safe redirect on missing IDs.
 
 ---
 
@@ -129,16 +129,16 @@
 
 ## Milestone 12: Student REST API — Categories & Swagger Documentation (Ex 14–17)
 - [x] **Task 12.1** *(Ex 14–15, issue #45)*: Create `CategoryRestController` (`@RequestMapping("/api/categories")`, `@CrossOrigin(origins = "*")`) with `GET /api/categories` and `GET /api/categories/{id}` (`404 Not Found` if missing) + `MockMvc` tests.
-- [ ] **Task 12.2** *(Ex 16)*: Add `findByCategoryIdAndIsPublishedTrue(Long categoryId)` to `QuizRepository` and implement `GET /api/categories/{id}/quizzes` returning only published quizzes of the category (`404 Not Found` if category missing) + `MockMvc` tests.
+- [x] **Task 12.2** *(Ex 16, story #26)*: Add `findByCategoryIdAndIsPublishedTrue(Long categoryId)` to `QuizRepository` and implement `GET /api/categories/{id}/quizzes` returning only published quizzes of the category (`404 Not Found` if category missing) + `MockMvc` tests (`CategoryQuizzesRestTests`). *(Implemented in commit `48ee4d9`)*
 - [ ] **Task 12.3** *(Ex 17)*: Add `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15` to `pom.xml`, annotate all REST controllers/methods with `@Tag`, `@Operation`, and `@ApiResponses`/`@ApiResponse`, test all endpoints & error cases in `/swagger-ui/index.html`, and add the Rahti Swagger link under `## REST API` in `README.md`.
 
 ---
 
 ## ♻️ Shared Student Frontend Foundation — reuse, don't rebuild (issues #45–#47 & TanStack Query migration)
 The routing and plumbing below already exist on `develop`. Pages for stories #22, #23, #24 and #26 should plug into them instead of re-creating them:
-- **Routing** (`react-router-dom` installed): routes live in `frontend/src/App.tsx` inside the `<Layout>` route. Add a page by adding one `<Route>` there (`quizzes/:id`, `quizzes/:id/results`, `categories/:id/quizzes`); unknown paths fall through to `NotFoundPage`.
+- **Routing** (`react-router-dom` installed): routes live in `frontend/src/App.tsx` inside the `<Layout>` route (`/` → `QuizListPage`, `/categories` → `CategoryListPage`, `/categories/:id/quizzes` → `CategoryQuizListPage`). Add remaining pages by adding one `<Route>` there (`quizzes/:id`, `quizzes/:id/results`); unknown paths fall through to `NotFoundPage`.
 - **Navigation menu**: `components/Layout.tsx` renders the header, the `Quizzes` / `Categories` menu (`NavLink`), the routed page and the footer. Do not add another header or menu per page.
-- **API calls**: `services/api.ts` exports `BACKEND_URL`, `getJson`, and `ApiError` (with `.status` for 404 handling); add a shared `postJson` helper there when implementing `POST /api/answers` (Task 13.3). Existing service functions: `getPublishedQuizzes` (`services/quizService.ts`), `getCategories` and `getCategory(id)` (`services/categoryService.ts`).
+- **API calls**: `services/api.ts` exports `BACKEND_URL`, `getJson`, and `ApiError` (with `.status` for 404 handling); add a shared `postJson` helper there when implementing `POST /api/answers` (Task 13.3). Existing service functions: `getPublishedQuizzes` and `getQuizzesByCategory` (`services/quizService.ts`), `getCategories` and `getCategory(id)` (`services/categoryService.ts`).
 - **Data fetching & caching (`@tanstack/react-query`)**:
   - Shared `QueryClient` in `frontend/src/main.tsx` skips retries on 4xx `ApiError` responses (e.g. `404`) and retries transient network/5xx errors once.
   - Reads use `useQuery` (existing keys: `['quizzes', 'published']`, `['categories']`); include route params in `queryKey`, forward `signal` (`queryFn: ({ signal }) => getX(id, signal)`), and compute `isInitialLoading = isPending || (isFetching && !data)` so error retries display the loading spinner cleanly.
@@ -164,7 +164,7 @@ The routing and plumbing below already exist on `develop`. Pages for stories #22
 
 ## Milestone 14: Student Frontend — Category Browsing (S2-US9, S2-US10 / Ex 22–23)
 - [x] **Task 14.1** *(Ex 22, issues #46/#47)*: Create `CategoryListPage.tsx` (`/categories`) using `useQuery` (`['categories']`) to list all categories with descriptions and clickable category names linking to `/categories/:id/quizzes`, with loading/error/empty states.
-- [ ] **Task 14.2** *(Ex 23)*: Create `CategoryQuizzesPage.tsx` registered at `categories/:id/quizzes` in `App.tsx` using `useQuery` with existing `getCategory(id, signal)` and new `getCategoryQuizzes(id, signal)` (once Task 12.2 exists), `ApiError.status === 404` handling, and `PageStates.tsx`, displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard` (preserving quiz-taking and results links). Category name links on `/categories` already point to `/categories/:id/quizzes` (they show `NotFoundPage` until this route is added).
+- [x] **Task 14.2** *(Ex 23, story #26)*: Create `CategoryQuizListPage.tsx` registered at `categories/:id/quizzes` in `App.tsx` using `useQuery` with `getCategory(id, signal)` and `getQuizzesByCategory(id, signal)`, `ApiError.status === 404` handling, and `PageStates.tsx`, displaying category name/description, back navigation, and published quizzes in that category reusing `QuizList`/`QuizCard`. *(Implemented in commits `48ee4d9` & `e09d260`)*
 
 ---
 
