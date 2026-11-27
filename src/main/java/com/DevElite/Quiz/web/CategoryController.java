@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.DevElite.Quiz.domain.Category;
 import com.DevElite.Quiz.service.CategoryService;
 
-/** Teacher MVC pages for creating and listing quiz categories (Ex 5–6). */
+/** Teacher MVC pages for creating, listing, and deleting quiz categories (Ex 5–8). */
 @Controller
 @RequestMapping("/categories")
 public class CategoryController {
@@ -57,6 +57,19 @@ public class CategoryController {
         }
         if (errors.hasErrors()) return "add-category";
         categoryService.saveCategory(category);
+        return "redirect:/categories";
+    }
+
+    /**
+     * Detaches any quizzes assigned to the category, deletes the category,
+     * and redirects back to the category list (S2-US4 / Exercise 8).
+     *
+     * @param id category identifier
+     * @return redirect to category list
+     */
+    @GetMapping("/delete/{id}")
+    public String deleteCategory(@PathVariable("id") Long id) {
+        categoryService.deleteCategory(id);
         return "redirect:/categories";
     }
 }
